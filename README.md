@@ -169,7 +169,7 @@ You need these accounts. All have free tiers.
 | --- | --- | --- |
 | PostgreSQL (Vercel Postgres, Neon or Supabase) | Database | `POSTGRES_PRISMA_URL`, `POSTGRES_PRISMA_URL_NON_POOLING` |
 | S3-compatible storage (AWS S3 or Cloudflare R2) | Uploaded files | `NEXT_PUBLIC_UPLOAD_TRANSPORT=s3` and the `NEXT_PRIVATE_UPLOAD_*` settings |
-| Resend | Sign-in and notification emails | `RESEND_API_KEY` |
+| Postmark or Resend | Sign-in and notification emails | `POSTMARK_SERVER_TOKEN` or `RESEND_API_KEY`, plus `EMAIL_FROM` |
 | Tinybird | View analytics | `TINYBIRD_TOKEN` (push `lib/tinybird` with the Tinybird CLI) |
 | Upstash Redis | Rate limiting and upload locks | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `UPSTASH_REDIS_REST_LOCKER_URL`, `UPSTASH_REDIS_REST_LOCKER_TOKEN` |
 | Upstash QStash | Background jobs | `QSTASH_TOKEN`, `QSTASH_CURRENT_SIGNING_KEY`, `QSTASH_NEXT_SIGNING_KEY` |

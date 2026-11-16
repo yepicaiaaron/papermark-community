@@ -10,14 +10,82 @@ export const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
+/**
+ * Sender for all email in the community edition, e.g.
+ * "StoryMachine <docs@storymachine.ai>". Must be a sender verified with
+ * your email provider.
+ */
+const DEFAULT_FROM = process.env.EMAIL_FROM ?? "Papermark <noreply@example.com>";
+
+const postmarkToken = process.env.POSTMARK_SERVER_TOKEN;
+
+/**
+ * Upstream sends its own product and sales emails from papermark.com
+ * addresses (trial nudges, check-ins, year in review). A self-hosted copy
+ * can't send from that domain and shouldn't send those emails at all.
+ */
+const isUpstreamMarketing = (from?: string, marketing?: boolean) =>
+  marketing || (!!from && /@papermark\.com>?$/i.test(from.trim()));
+
+async function sendWithPostmark({
+  from,
+  to,
+  cc,
+  replyTo,
+  subject,
+  html,
+  text,
+  headers,
+}: {
+  from: string;
+  to: string;
+  cc?: string | string[];
+  replyTo?: string;
+  subject: string;
+  html: string;
+  text: string;
+  headers: Record<string, string>;
+}) {
+  const response = await fetch("https://api.postmarkapp.com/email", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Postmark-Server-Token": postmarkToken as string,
+    },
+    body: JSON.stringify({
+      From: from,
+      To: to,
+      Cc: Array.isArray(cc) ? cc.join(",") : cc,
+      ReplyTo: replyTo,
+      Subject: subject,
+      HtmlBody: html,
+      TextBody: text,
+      MessageStream: process.env.POSTMARK_MESSAGE_STREAM ?? "outbound",
+      Headers: Object.entries(headers).map(([Name, Value]) => ({ Name, Value })),
+    }),
+  });
+  const data = (await response.json().catch(() => ({}))) as {
+    ErrorCode?: number;
+    Message?: string;
+    MessageID?: string;
+  };
+  if (!response.ok || (data.ErrorCode && data.ErrorCode !== 0)) {
+    throw new Error(
+      `Postmark error ${data.ErrorCode ?? response.status}: ${data.Message ?? "unknown"}`,
+    );
+  }
+  return { id: data.MessageID ?? "" };
+}
+
 export const sendEmail = async ({
   to,
   subject,
   react,
   from,
   marketing,
-  system,
-  verify,
+  system: _system,
+  verify: _verify,
   test,
   cc,
   replyTo,
@@ -39,48 +107,59 @@ export const sendEmail = async ({
   unsubscribeUrl?: string;
   idempotencyKey?: string;
 }) => {
-  if (!resend) {
-    // Throw an error if resend is not initialized
-    throw new Error("Resend not initialized");
+  if (isUpstreamMarketing(from, marketing)) {
+    return null;
+  }
+
+  if (!resend && !postmarkToken) {
+    throw new Error(
+      "No email provider configured: set POSTMARK_SERVER_TOKEN or RESEND_API_KEY",
+    );
   }
 
   const html = await render(react);
   const plainText = toPlainText(html);
-
-  const fromAddress =
-    from ??
-    (marketing
-      ? "Marc from Papermark <marc@updates.papermark.com>"
-      : system
-        ? "Papermark <system@papermark.com>"
-        : verify
-          ? "Papermark <system@verify.papermark.com>"
-          : !!scheduledAt
-            ? "Marc Seitz <marc@papermark.com>"
-            : "Marc from Papermark <marc@papermark.com>");
+  const fromAddress = from ?? DEFAULT_FROM;
+  const headers: Record<string, string> = {
+    // Reusing an idempotency key with a changed payload is a 409, so the
+    // ref id has to come from the key rather than a fresh nanoid.
+    "X-Entity-Ref-ID": idempotencyKey ?? nanoid(),
+    ...(unsubscribeUrl
+      ? {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        }
+      : {}),
+  };
 
   try {
-    const { data, error } = await resend.emails.send(
+    if (postmarkToken) {
+      // Postmark has no scheduled sending; scheduled emails are upstream
+      // marketing follow-ups, so they are skipped rather than sent early.
+      if (scheduledAt) return null;
+      return await sendWithPostmark({
+        from: fromAddress,
+        to,
+        cc,
+        replyTo,
+        subject,
+        html,
+        text: plainText,
+        headers,
+      });
+    }
+
+    const { data, error } = await resend!.emails.send(
       {
         from: fromAddress,
         to: test ? "delivered@resend.dev" : to,
         cc: cc,
-        replyTo: marketing ? "marc@papermark.com" : replyTo,
+        replyTo,
         subject,
         react,
         scheduledAt,
         text: plainText,
-        headers: {
-          // Reusing an idempotency key with a changed payload is a 409, so the
-          // ref id has to come from the key rather than a fresh nanoid.
-          "X-Entity-Ref-ID": idempotencyKey ?? nanoid(),
-          ...(unsubscribeUrl
-            ? {
-                "List-Unsubscribe": `<${unsubscribeUrl}>`,
-                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-              }
-            : {}),
-        },
+        headers,
       },
       { idempotencyKey },
     );
@@ -95,16 +174,14 @@ export const sendEmail = async ({
       throw error;
     }
 
-    // If there's no error, return the data
     return data;
   } catch (exception) {
-    // Log and rethrow any caught exceptions for upstream handling
     log({
       message: `Unexpected error when sending email: ${exception}`,
       type: "error",
       mention: true,
     });
-    throw exception; // Rethrow the caught exception
+    throw exception;
   }
 };
 

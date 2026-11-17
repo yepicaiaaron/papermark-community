@@ -410,6 +410,9 @@ function prepareRemotePatterns() {
     { protocol: "https", hostname: "d36r2enbzam0iu.cloudfront.net" },
     // us special storage
     { protocol: "https", hostname: "d35vw2hoyyl88.cloudfront.net" },
+    // community edition: S3 buckets served by presigned URLs (no CloudFront)
+    { protocol: "https", hostname: "*.s3.amazonaws.com" },
+    { protocol: "https", hostname: "*.s3.*.amazonaws.com" },
   ];
 
   // Default region patterns

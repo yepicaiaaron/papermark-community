@@ -7,7 +7,6 @@ import { promisify } from "node:util";
 
 import { ONE_HOUR } from "@/lib/constants";
 import { getFile } from "@/lib/files/get-file";
-import { putFileServer } from "@/lib/files/put-file-server";
 import prisma from "@/lib/prisma";
 import { convertPdfToImageRoute } from "@/lib/trigger/pdf-to-image-route";
 import { updateStatus } from "@/lib/utils/generate-trigger-status";
@@ -36,6 +35,53 @@ const EXTENSION_BY_TYPE: Record<string, string> = {
   "application/vnd.apple.keynote": ".key",
   "application/x-iwork-keynote-sffkey": ".key",
 };
+
+/**
+ * Uploads the converted PDF with a one-off link from the app, so this task
+ * needs no storage credentials of its own.
+ */
+async function uploadPdfThroughApp({
+  teamId,
+  docId,
+  fileName,
+  pdf,
+}: {
+  teamId: string;
+  docId: string;
+  fileName: string;
+  pdf: Buffer;
+}): Promise<string> {
+  const presign = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/internal/community/presign-upload`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.INTERNAL_API_KEY}`,
+      },
+      body: JSON.stringify({
+        teamId,
+        docId,
+        fileName,
+        contentType: "application/pdf",
+      }),
+    },
+  );
+  if (!presign.ok) {
+    throw new Error(`Could not get an upload link (${presign.status})`);
+  }
+  const { url, key } = (await presign.json()) as { url: string; key: string };
+
+  const put = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/pdf" },
+    body: new Uint8Array(pdf),
+  });
+  if (!put.ok) {
+    throw new Error(`Upload of converted PDF failed (${put.status})`);
+  }
+  return key;
+}
 
 /**
  * Converts an uploaded office file to PDF with LibreOffice (installed into
@@ -110,18 +156,12 @@ async function convertToPdf(payload: ConvertPayload) {
 
     updateStatus({ progress: 60, text: "Saving PDF..." });
     const baseName = path.basename(sourceKey.split("?")[0], ext) || "document";
-    const { data } = await putFileServer({
-      file: {
-        name: `${baseName}.pdf`,
-        type: "application/pdf",
-        buffer: pdf,
-      },
+    const data = await uploadPdfThroughApp({
       teamId,
       docId: documentId,
+      fileName: `${baseName}.pdf`,
+      pdf,
     });
-    if (!data) {
-      throw new Error("Failed to store the converted PDF");
-    }
 
     await prisma.documentVersion.update({
       where: { id: documentVersionId },

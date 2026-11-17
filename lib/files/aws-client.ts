@@ -1,6 +1,7 @@
 import {
   type StorageConfig,
   getStorageConfig,
+  getStorageCredentials,
   getTeamStorageConfigById,
 } from "@/community/features/storage/config";
 import { LambdaClient } from "@aws-sdk/client-lambda";
@@ -18,10 +19,7 @@ export const getS3Client = (storageRegion?: string) => {
   return new S3Client({
     endpoint: config.endpoint || undefined,
     region: config.region,
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
-    },
+    credentials: getStorageCredentials(config),
   });
 };
 
@@ -37,10 +35,7 @@ export const getS3ClientForTeam = async (teamId: string) => {
   return new S3Client({
     endpoint: config.endpoint || undefined,
     region: config.region,
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
-    },
+    credentials: getStorageCredentials(config),
   });
 };
 
@@ -55,10 +50,7 @@ export const getLambdaClient = (storageRegion?: string) => {
 
   return new LambdaClient({
     region: config.region,
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
-    },
+    credentials: getStorageCredentials(config),
   });
 };
 
@@ -73,10 +65,7 @@ export const getLambdaClientForTeam = async (teamId: string) => {
 
   return new LambdaClient({
     region: config.region,
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
-    },
+    credentials: getStorageCredentials(config),
   });
 };
 
@@ -99,10 +88,7 @@ export const getTeamS3ClientAndConfig = async (teamId: string) => {
   const client = new S3Client({
     endpoint: config.endpoint || undefined,
     region: config.region,
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
-    },
+    credentials: getStorageCredentials(config),
   });
 
   return { client, config };

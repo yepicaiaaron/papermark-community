@@ -1,6 +1,6 @@
 import { S3Store } from "@tus/s3-store";
 
-import { getStorageConfig } from "./config";
+import { getStorageConfig, getStorageCredentials } from "./config";
 
 /**
  * Resumable upload store. The community edition uses one bucket, so this
@@ -15,10 +15,7 @@ export class MultiRegionS3Store extends S3Store {
         bucket: config.bucket,
         region: config.region,
         endpoint: config.endpoint,
-        credentials: {
-          accessKeyId: config.accessKeyId,
-          secretAccessKey: config.secretAccessKey,
-        },
+        credentials: getStorageCredentials(config),
       },
     });
   }

@@ -147,6 +147,18 @@ export default function TokenSettings() {
                   Create scoped API keys for your apps, automation, and MCP
                   clients.
                 </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  MCP server:{" "}
+                  <code className="rounded bg-gray-100 px-1 py-0.5 text-xs dark:bg-gray-800">
+                    {`${process.env.NEXT_PUBLIC_BASE_URL}/mcp`}
+                  </code>
+                  . Claude, ChatGPT and other hosted apps sign in by
+                  themselves; for Claude Code or Cursor, send a key below as{" "}
+                  <code className="rounded bg-gray-100 px-1 py-0.5 text-xs dark:bg-gray-800">
+                    Authorization: Bearer
+                  </code>
+                  .
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <Button asChild variant="ghost">

@@ -25,7 +25,7 @@ const nextConfig = {
       // service root.
       {
         source: "/.well-known/openid-configuration",
-        destination: "/api/oauth/.well-known/openid-configuration",
+        destination: "/api/well-known/oauth-authorization-server",
       },
       // RFC 9728 protected-resource metadata for the MCP endpoint. MCP
       // clients fetch this after receiving a 401 + WWW-Authenticate from
@@ -38,6 +38,20 @@ const nextConfig = {
       {
         source: "/.well-known/openai-apps-challenge",
         destination: "/api/well-known/openai-apps-challenge",
+      },
+      // Community edition: path-suffixed discovery variants and the
+      // OAuth authorization server metadata (RFC 8414).
+      {
+        source: "/.well-known/oauth-protected-resource/:path*",
+        destination: "/api/well-known/oauth-protected-resource",
+      },
+      {
+        source: "/.well-known/oauth-authorization-server",
+        destination: "/api/well-known/oauth-authorization-server",
+      },
+      {
+        source: "/.well-known/oauth-authorization-server/:path*",
+        destination: "/api/well-known/oauth-authorization-server",
       },
     ];
     const beforeFiles = [];

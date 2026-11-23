@@ -20,6 +20,12 @@ function isAnalyticsPath(path: string) {
 }
 
 function isCustomDomain(host: string) {
+  // Community edition: the app's own domain (NEXT_PUBLIC_APP_BASE_HOST,
+  // e.g. docs.example.com) is the app, not a customer link domain.
+  const appHost = process.env.NEXT_PUBLIC_APP_BASE_HOST?.toLowerCase().trim();
+  if (appHost && host?.split(":")[0]?.toLowerCase() === appHost) {
+    return false;
+  }
   return (
     (process.env.NODE_ENV === "development" &&
       (host?.includes(".local") || host?.includes("papermark.dev"))) ||

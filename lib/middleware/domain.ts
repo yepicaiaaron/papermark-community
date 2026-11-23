@@ -19,7 +19,14 @@ export default async function DomainMiddleware(req: NextRequest) {
       }
     }
 
-    return NextResponse.redirect(new URL("https://www.papermark.com", req.url));
+    // Community edition: send bare custom-domain visits to this install's
+    // own site rather than papermark.com.
+    return NextResponse.redirect(
+      new URL(
+        process.env.NEXT_PUBLIC_MARKETING_URL || "https://www.papermark.com",
+        req.url,
+      ),
+    );
   }
 
   const url = req.nextUrl.clone();

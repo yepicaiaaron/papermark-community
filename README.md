@@ -182,3 +182,27 @@ starts without them.
 
 Vercel Blob is no longer enough for uploads: current Papermark needs
 S3-compatible storage for server-side file processing.
+
+### MCP server (community edition)
+
+Every install has a remote MCP server at `https://<your-app>/mcp`
+(Streamable HTTP). It lets Claude, ChatGPT, Cursor and other AI apps list
+and upload documents, create and change share links, and read viewer
+analytics (who viewed, for how long, page by page).
+
+- **Hosted apps (claude.ai, ChatGPT):** add `https://<your-app>/mcp` as a
+  custom connector. The app registers itself, you sign in and pick a
+  workspace on a consent screen, and it gets a 30-day token that refreshes.
+- **Claude Code, Cursor and scripts:** create a key in Settings > API
+  tokens and send it as `Authorization: Bearer <key>`, for example:
+
+  ```sh
+  claude mcp add --transport http papermark https://<your-app>/mcp \
+    --header "Authorization: Bearer pm_live_..."
+  ```
+
+Tools: `get_workspace`, `list_documents`, `get_document`,
+`upload_document_from_url`, `create_link`, `list_links`, `update_link`,
+`list_views`, `get_view`, `get_document_analytics`, `list_visitors`,
+`list_datarooms`, `add_document_to_dataroom`. Keys with `apis.read` can
+only use the read tools.

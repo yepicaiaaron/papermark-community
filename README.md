@@ -202,7 +202,8 @@ analytics (who viewed, for how long, page by page).
   ```
 
 Tools: `get_workspace`, `list_documents`, `get_document`,
-`upload_document_from_url`, `create_link`, `list_links`, `update_link`,
+`upload_document_from_url`, `create_upload_url` + `complete_upload` (files
+from your own computer), `create_link`, `list_links`, `update_link`,
 `list_views`, `get_view`, `get_document_analytics`, `list_visitors`,
 `list_datarooms`, `add_document_to_dataroom`. Keys with `apis.read` can
 only use the read tools.

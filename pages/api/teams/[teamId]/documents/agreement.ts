@@ -1,13 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
+import type { convertFilesToPdfTask } from "@/community/features/conversions/lib/trigger/convert-files";
+import { startPdfToImage } from "@/community/features/inline-processing/pdf";
 import { tasks } from "@trigger.dev/sdk";
-
 import { getServerSession } from "next-auth/next";
 
 import { errorhandler } from "@/lib/errorHandler";
 import prisma from "@/lib/prisma";
-import type { convertFilesToPdfTask } from "@/community/features/conversions/lib/trigger/convert-files";
-import { convertPdfToImageRoute } from "@/lib/trigger/pdf-to-image-route";
 import { CustomUser } from "@/lib/types";
 import { getExtension, log, serializeFileSize } from "@/lib/utils";
 import { conversionQueueName } from "@/lib/utils/trigger-utils";
@@ -157,7 +156,7 @@ export default async function handle(
       }
 
       if (type === "pdf") {
-        await convertPdfToImageRoute.trigger(
+        await startPdfToImage(
           {
             documentId: document.id,
             documentVersionId: document.versions[0].id,

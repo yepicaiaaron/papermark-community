@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import { isTeamPausedById } from "@/community/features/billing/cancellation/lib/is-team-paused";
 import type { convertFilesToPdfTask } from "@/community/features/conversions/lib/trigger/convert-files";
+import { startPdfToImage } from "@/community/features/inline-processing/pdf";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { tasks } from "@trigger.dev/sdk";
 import { getServerSession } from "next-auth/next";
@@ -11,7 +12,6 @@ import { enforceDocumentMemberScope } from "@/lib/api/rbac/guard";
 import { getFeatureFlags } from "@/lib/featureFlags";
 import prisma from "@/lib/prisma";
 import { processVideo } from "@/lib/trigger/optimize-video-files";
-import { convertPdfToImageRoute } from "@/lib/trigger/pdf-to-image-route";
 import { CustomUser } from "@/lib/types";
 import { log } from "@/lib/utils";
 import { isMarkdownFile } from "@/lib/utils/get-content-type";
@@ -224,7 +224,7 @@ export default async function handle(
 
       // trigger document uploaded event to trigger convert-pdf-to-image job
       if (type === "pdf") {
-        await convertPdfToImageRoute.trigger(
+        await startPdfToImage(
           {
             documentId: documentId,
             documentVersionId: version.id,

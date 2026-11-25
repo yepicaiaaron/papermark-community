@@ -2,14 +2,19 @@ import {
   DEFAULT_WATERMARK,
   PROTECT_BY_DEFAULT,
 } from "@/community/brand/link-defaults";
+import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LinkAudienceType } from "@prisma/client";
+import { randomBytes } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
+import path from "node:path";
 import { PDFDocument } from "pdf-lib";
 import { z } from "zod";
 
 import { processDocument } from "@/lib/api/documents/process-document";
+import { getTeamS3ClientAndConfig } from "@/lib/files/aws-client";
 import { putFileServer } from "@/lib/files/put-file-server";
 import prisma from "@/lib/prisma";
 import {
@@ -18,7 +23,7 @@ import {
   getViewPageDuration,
   getViewUserAgent,
 } from "@/lib/tinybird";
-import { generateEncrpytedPassword } from "@/lib/utils";
+import { generateEncrpytedPassword, safeSlugify } from "@/lib/utils";
 import { getSupportedContentType } from "@/lib/utils/get-content-type";
 import { constructLinkUrl } from "@/lib/utils/link-url";
 
@@ -392,6 +397,110 @@ export function createMcpServer(auth: McpAuth) {
           id: document.id,
           name: document.name,
           pages: numPages,
+          links: links.map(linkSummary),
+        });
+      }),
+  );
+
+  server.registerTool(
+    "create_upload_url",
+    {
+      title: "Get an upload link for a local file",
+      description:
+        "Step 1 of uploading a file from your computer. Returns a one-time upload URL (valid 15 minutes). PUT the file bytes to it with the same Content-Type, e.g. curl -X PUT -H 'Content-Type: application/pdf' --data-binary @deck.pdf '<uploadUrl>'. Then call complete_upload with the key.",
+      inputSchema: {
+        fileName: z.string().describe("e.g. StoryMachine deck.pdf"),
+        contentType: z
+          .string()
+          .optional()
+          .describe("Defaults to application/pdf"),
+      },
+    },
+    ({ fileName, contentType }) =>
+      guard(auth, "documents.write", async () => {
+        if (process.env.NEXT_PUBLIC_UPLOAD_TRANSPORT !== "s3") {
+          return fail("Direct uploads need S3 storage on this install.");
+        }
+        const type = contentType || "application/pdf";
+        if (!getSupportedContentType(type)) {
+          return fail(`Files of type ${type} are not supported.`);
+        }
+        const { name, ext } = path.parse(fileName);
+        const key = `${teamId}/mcp_${randomBytes(8).toString("hex")}/${safeSlugify(name) || "document"}${ext || ".pdf"}`;
+        const { client, config } = await getTeamS3ClientAndConfig(teamId);
+        const uploadUrl = await getSignedUrl(
+          client,
+          new PutObjectCommand({
+            Bucket: config.bucket,
+            Key: key,
+            ContentType: type,
+          }),
+          { expiresIn: 15 * 60 },
+        );
+        return ok({ uploadUrl, key, contentType: type, expiresInSeconds: 900 });
+      }),
+  );
+
+  server.registerTool(
+    "complete_upload",
+    {
+      title: "Finish uploading a local file",
+      description:
+        "Step 2: after the file has been PUT to the upload URL, adds it to the workspace. Optionally creates a share link straight away.",
+      inputSchema: {
+        key: z.string(),
+        name: z.string().describe("Name to show, e.g. StoryMachine deck"),
+        contentType: z.string().optional(),
+        createLink: z.boolean().optional(),
+      },
+    },
+    ({ key, name, contentType, createLink }) =>
+      guard(auth, "documents.write", async () => {
+        if (!key.startsWith(`${teamId}/mcp_`)) {
+          return fail("That upload key doesn't belong to this workspace.");
+        }
+        const type = contentType || "application/pdf";
+        const supported = getSupportedContentType(type);
+        if (!supported) return fail(`Files of type ${type} are not supported.`);
+        const { client, config } = await getTeamS3ClientAndConfig(teamId);
+        let size = 0;
+        try {
+          const head = await client.send(
+            new HeadObjectCommand({ Bucket: config.bucket, Key: key }),
+          );
+          size = Number(head.ContentLength ?? 0);
+        } catch {
+          return fail(
+            "The file hasn't been uploaded yet. PUT it to the upload URL first.",
+          );
+        }
+        const team = await prisma.team.findUnique({
+          where: { id: teamId },
+          select: { plan: true },
+        });
+        const document = await processDocument({
+          documentData: {
+            name,
+            key,
+            storageType: "S3_PATH",
+            numPages: 1,
+            supportedFileType: supported,
+            contentType: type,
+            fileSize: size,
+          },
+          teamId,
+          userId: auth.userId,
+          teamPlan: team?.plan ?? "free",
+          createLink: Boolean(createLink),
+        });
+        const links = await prisma.link.findMany({
+          where: { documentId: document.id },
+          select: linkSelect,
+        });
+        return ok({
+          id: document.id,
+          name: document.name,
+          note: "Pages are being prepared; the document can be shared now.",
           links: links.map(linkSummary),
         });
       }),

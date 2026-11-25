@@ -1,3 +1,4 @@
+import { startPdfToImage } from "@/community/features/inline-processing/pdf";
 import { AbortTaskRunError, logger, task } from "@trigger.dev/sdk";
 import { execFile } from "node:child_process";
 import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
@@ -8,7 +9,6 @@ import { promisify } from "node:util";
 import { ONE_HOUR } from "@/lib/constants";
 import { getFile } from "@/lib/files/get-file";
 import prisma from "@/lib/prisma";
-import { convertPdfToImageRoute } from "@/lib/trigger/pdf-to-image-route";
 import { updateStatus } from "@/lib/utils/generate-trigger-status";
 
 const run = promisify(execFile);
@@ -171,7 +171,7 @@ async function convertToPdf(payload: ConvertPayload) {
     logger.info("Converted to PDF", { documentVersionId });
     updateStatus({ progress: 70, text: "Rendering pages..." });
 
-    await convertPdfToImageRoute.trigger(
+    await startPdfToImage(
       { documentId, documentVersionId, teamId, versionNumber },
       { idempotencyKey: `${teamId}-${documentVersionId}-pages` },
     );

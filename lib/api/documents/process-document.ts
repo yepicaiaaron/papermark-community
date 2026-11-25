@@ -1,7 +1,12 @@
+import {
+  DEFAULT_WATERMARK,
+  PROTECT_BY_DEFAULT,
+} from "@/community/brand/link-defaults";
 import type {
   convertFilesToPdfTask,
   convertKeynoteToPdfTask,
 } from "@/community/features/conversions/lib/trigger/convert-files";
+import { startPdfToImage } from "@/community/features/inline-processing/pdf";
 import { tasks } from "@trigger.dev/sdk";
 
 import { validateExternalDocumentUrl } from "@/lib/api/documents/validate-external-url";
@@ -9,7 +14,6 @@ import { DocumentData } from "@/lib/documents/create-document";
 import { getFeatureFlags } from "@/lib/featureFlags";
 import prisma from "@/lib/prisma";
 import { processVideo } from "@/lib/trigger/optimize-video-files";
-import { convertPdfToImageRoute } from "@/lib/trigger/pdf-to-image-route";
 import { getExtension } from "@/lib/utils";
 import { isMarkdownFile } from "@/lib/utils/get-content-type";
 import { conversionQueueName } from "@/lib/utils/trigger-utils";
@@ -117,6 +121,14 @@ export const processDocument = async ({
           create: {
             teamId,
             ownerId: userId,
+            // Community edition: same protective defaults as new links
+            emailProtected: true,
+            allowDownload: false,
+            emailAuthenticated:
+              process.env.NEXT_PUBLIC_DEFAULT_VERIFY_EMAIL === "true",
+            enableScreenshotProtection: PROTECT_BY_DEFAULT,
+            enableWatermark: PROTECT_BY_DEFAULT,
+            ...(PROTECT_BY_DEFAULT && { watermarkConfig: DEFAULT_WATERMARK }),
           },
         },
       }),
@@ -214,7 +226,7 @@ export const processDocument = async ({
 
   // skip triggering convert-pdf-to-image job for "notion" / "excel" documents
   if (type === "pdf") {
-    await convertPdfToImageRoute.trigger(
+    await startPdfToImage(
       {
         documentId: document.id,
         documentVersionId: document.versions[0].id,

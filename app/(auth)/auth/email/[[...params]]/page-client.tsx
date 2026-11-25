@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
 
+import { BRAND, BrandPanel } from "@/community/brand";
+
 import { LogoCloud } from "@/components/shared/logo-cloud";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +84,9 @@ export default function EmailVerificationClient() {
       } else {
         // No callback URL in response - stop loading and show error
         setIsLoading(false);
-        setError("Unable to complete sign-in: missing callback URL. Please try again.");
+        setError(
+          "Unable to complete sign-in: missing callback URL. Please try again.",
+        );
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
@@ -98,8 +102,8 @@ export default function EmailVerificationClient() {
             <div className="items-left flex flex-col space-y-3 px-4 py-6 pt-5 sm:px-12 sm:pt-6">
               <Link href="https://www.papermark.com" target="_blank">
                 <img
-                  src="/_static/papermark-logo.svg"
-                  alt="Papermark Logo"
+                  src={BRAND.logo}
+                  alt={`${BRAND.name} logo`}
                   className="mb-24 h-7 w-auto self-start sm:mb-20"
                 />
               </Link>
@@ -132,8 +136,8 @@ export default function EmailVerificationClient() {
           <div className="items-left flex flex-col space-y-3 px-4 py-6 pt-5 sm:px-12 sm:pt-6">
             <Link href="https://www.papermark.com" target="_blank">
               <img
-                src="/_static/papermark-logo.svg"
-                alt="Papermark Logo"
+                src={BRAND.logo}
+                alt={`${BRAND.name} logo`}
                 className="mb-24 h-7 w-auto self-start sm:mb-20"
               />
             </Link>
@@ -189,7 +193,7 @@ export default function EmailVerificationClient() {
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 maxLength={10}
-                className="flex h-10 w-full rounded-[4px] border-0 bg-background bg-white px-3 py-2 font-mono text-lg tracking-widest text-gray-900 ring-1 ring-gray-200 transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground placeholder:font-sans placeholder:text-sm placeholder:tracking-normal focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white"
+                className="flex h-10 w-full rounded-[4px] border-0 bg-background bg-white px-3 py-2 font-mono text-lg tracking-widest text-gray-900 ring-1 ring-gray-200 transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:font-sans placeholder:text-sm placeholder:tracking-normal placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white"
               />
             </div>
 
@@ -216,25 +220,27 @@ export default function EmailVerificationClient() {
             </Link>
           </p>
 
-          <p className="mt-10 w-full max-w-md px-4 text-xs text-muted-foreground sm:px-12">
-            By continuing, you agree to Papermark&apos;s{" "}
-            <a
-              href="https://www.papermark.com/terms"
-              target="_blank"
-              className="underline"
-            >
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a
-              href="https://www.papermark.com/privacy"
-              target="_blank"
-              className="underline"
-            >
-              Privacy Policy
-            </a>
-            .
-          </p>
+          {!BRAND.custom && (
+            <p className="mt-10 w-full max-w-md px-4 text-xs text-muted-foreground sm:px-12">
+              By continuing, you agree to Papermark&apos;s{" "}
+              <a
+                href="https://www.papermark.com/terms"
+                target="_blank"
+                className="underline"
+              >
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://www.papermark.com/privacy"
+                target="_blank"
+                className="underline"
+              >
+                Privacy Policy
+              </a>
+              .
+            </p>
+          )}
         </div>
       </div>
       <TestimonialSection />
@@ -252,7 +258,7 @@ function TestimonialSection() {
         <div className="flex w-full max-w-xl flex-col items-center">
           <div className="mb-6 w-full max-w-md">
             <img
-              className="h-auto w-full rounded-[4px] object-cover "
+              className="h-auto w-full rounded-[4px] object-cover"
               src="/_static/testimonials/backtrace.jpeg"
               alt="Backtrace Capital"
             />

@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 
 import { useEffect, useState } from "react";
 
+import { BRAND } from "@/community/brand/config";
 import { PauseCircleIcon } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -33,10 +34,10 @@ function SidebarBrandHeader() {
   return (
     <SidebarHeader className="gap-y-0 pb-4">
       <p className="hidden w-full justify-center text-2xl font-bold tracking-tighter text-black group-data-[collapsible=icon]:inline-flex dark:text-white">
-        <Link href="/dashboard">P</Link>
+        <Link href="/dashboard">{BRAND.name.charAt(0)}</Link>
       </p>
       <p className="ml-2 flex items-center text-2xl font-bold tracking-tighter text-black group-data-[collapsible=icon]:hidden dark:text-white">
-        <Link href="/dashboard">Papermark</Link>
+        <Link href="/dashboard">{BRAND.name}</Link>
         {userPlan && !isFree && !isDataroomsPlus && !isDataroomsPremium ? (
           <span className="relative ml-4 inline-flex items-center rounded-full bg-background px-2.5 py-1 text-xs tracking-normal text-foreground ring-1 ring-gray-800">
             {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}

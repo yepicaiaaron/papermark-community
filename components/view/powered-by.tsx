@@ -1,9 +1,11 @@
+import { BRAND } from "@/community/brand/config";
 import { createPortal } from "react-dom";
-
 import { useTranslation } from "react-i18next";
 
 export const PoweredBy = ({ linkId }: { linkId: string }) => {
   const { t } = useTranslation("viewer");
+  // Community edition: no Papermark badge on branded installs.
+  if (BRAND.custom) return null;
   return createPortal(
     <div className="absolute bottom-0 right-0 z-[100] w-fit">
       <div className="p-6">

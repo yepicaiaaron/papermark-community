@@ -1,3 +1,4 @@
+import { BRAND } from "@/community/brand/config";
 import { waitUntil } from "@vercel/functions";
 import { customAlphabet } from "nanoid";
 
@@ -60,7 +61,7 @@ export const sendVerificationRequestEmail = async (params: {
     sendEmail({
       to: email as string,
       verify: true,
-      subject: "Login for Papermark",
+      subject: `Login for ${BRAND.name}`,
       react: emailTemplate,
       test: process.env.NODE_ENV === "development",
     }).catch((e) => {

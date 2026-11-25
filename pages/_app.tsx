@@ -2,6 +2,7 @@ import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
 import Head from "next/head";
 
+import { BRAND } from "@/community/brand/config";
 import { TeamProvider } from "@/context/team-context";
 import { UploadProgressProvider } from "@/context/upload-progress-context";
 import type { Session } from "next-auth";
@@ -34,21 +35,37 @@ export default function App({
   return (
     <>
       <Head>
-        <title>Papermark | The Open Source DocSend Alternative</title>
+        <title>
+          {BRAND.custom
+            ? BRAND.name
+            : "Papermark | The Open Source DocSend Alternative"}
+        </title>
         <meta name="theme-color" content="#000000" key="theme-color" />
         <meta
           name="description"
-          content="Papermark is an open-source document sharing alternative to DocSend with built-in analytics."
+          content={
+            BRAND.custom
+              ? BRAND.tagline
+              : "Papermark is an open-source document sharing alternative to DocSend with built-in analytics."
+          }
           key="description"
         />
         <meta
           property="og:title"
-          content="Papermark | The Open Source DocSend Alternative"
+          content={
+            BRAND.custom
+              ? BRAND.name
+              : "Papermark | The Open Source DocSend Alternative"
+          }
           key="og-title"
         />
         <meta
           property="og:description"
-          content="Papermark is an open-source document sharing alternative to DocSend with built-in analytics."
+          content={
+            BRAND.custom
+              ? BRAND.tagline
+              : "Papermark is an open-source document sharing alternative to DocSend with built-in analytics."
+          }
           key="og-description"
         />
         <meta
@@ -65,10 +82,14 @@ export default function App({
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@papermarkio" />
         <meta name="twitter:creator" content="@papermarkio" />
-        <meta name="twitter:title" content="Papermark" key="tw-title" />
+        <meta name="twitter:title" content={BRAND.name} key="tw-title" />
         <meta
           name="twitter:description"
-          content="Papermark is an open-source document sharing alternative to DocSend with built-in analytics."
+          content={
+            BRAND.custom
+              ? BRAND.tagline
+              : "Papermark is an open-source document sharing alternative to DocSend with built-in analytics."
+          }
           key="tw-description"
         />
         <meta
@@ -76,7 +97,7 @@ export default function App({
           content="https://www.papermark.com/_static/meta-image.png"
           key="tw-image"
         />
-        <link rel="icon" href="/favicon.ico" key="favicon" />
+        <link rel="icon" href={BRAND.favicon} key="favicon" />
       </Head>
       <SessionProvider session={session}>
         <PostHogCustomProvider>

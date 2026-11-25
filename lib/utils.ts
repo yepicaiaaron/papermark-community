@@ -1,8 +1,8 @@
 import { NextRouter } from "next/router";
 
+import { BRAND } from "@/community/brand/config";
 import slugify from "@sindresorhus/slugify";
 import { upload } from "@vercel/blob/client";
-import { transliterate } from "transliteration";
 import bcrypt from "bcryptjs";
 import * as chrono from "chrono-node";
 import { type ClassValue, clsx } from "clsx";
@@ -13,6 +13,7 @@ import { rgb } from "pdf-lib";
 import { ParsedUrlQuery } from "querystring";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+import { transliterate } from "transliteration";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -437,10 +438,16 @@ export const calculateDaysLeft = (accountCreationDate: Date): number => {
 };
 
 export function constructMetadata({
-  title = "Papermark | The Open Source DocSend Alternative",
-  description = "Papermark is an open-source document sharing alternative to DocSend with built-in engagement analytics and 100% white-labeling.",
-  image = "https://www.papermark.com/_static/meta-image.png",
-  favicon = "/favicon.ico",
+  title = BRAND.custom
+    ? BRAND.name
+    : "Papermark | The Open Source DocSend Alternative",
+  description = BRAND.custom
+    ? BRAND.tagline
+    : "Papermark is an open-source document sharing alternative to DocSend with built-in engagement analytics and 100% white-labeling.",
+  image = BRAND.custom
+    ? BRAND.logo
+    : "https://www.papermark.com/_static/meta-image.png",
+  favicon = BRAND.favicon,
   noIndex = false,
 }: {
   title?: string;

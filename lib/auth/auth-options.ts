@@ -1,4 +1,3 @@
-import { isSamlEnforcedForEmailDomain } from "@/lib/api/teams/is-saml-enforced-for-email-domain";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import PasskeyProvider from "@teamhanko/passkeys-next-auth-provider";
 import { type NextAuthOptions } from "next-auth";
@@ -6,8 +5,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvider from "next-auth/providers/google";
 import LinkedInProvider from "next-auth/providers/linkedin";
+import type { OAuthConfig } from "next-auth/providers/oauth";
 
 import { identifyUser, trackAnalytics } from "@/lib/analytics";
+import { isSamlEnforcedForEmailDomain } from "@/lib/api/teams/is-saml-enforced-for-email-domain";
 import { qstash } from "@/lib/cron";
 import { sendVerificationRequestEmail } from "@/lib/emails/send-verification-request";
 import hanko, { isPasskeyEnabled } from "@/lib/hanko";
@@ -24,11 +25,55 @@ function getMainDomainUrl(): string {
   return process.env.NEXTAUTH_URL || "https://app.papermark.com";
 }
 
+// Community edition: "Sign in with Vercel" (OAuth 2.0 + PKCE). Restrict who
+// can sign in from the app's Sign-In Access setting on Vercel.
+type VercelProfile = {
+  sub: string;
+  name?: string;
+  preferred_username?: string;
+  email: string;
+  picture?: string;
+};
+
+function vercelProviders(): OAuthConfig<VercelProfile>[] {
+  const clientId = process.env.VERCEL_APP_CLIENT_ID;
+  const clientSecret = process.env.VERCEL_APP_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return [];
+  return [
+    {
+      id: "vercel",
+      name: "Vercel",
+      type: "oauth",
+      clientId,
+      clientSecret,
+      authorization: {
+        url: "https://vercel.com/oauth/authorize",
+        params: { scope: "openid email profile" },
+      },
+      token: "https://api.vercel.com/login/oauth/token",
+      userinfo: "https://api.vercel.com/login/oauth/userinfo",
+      client: { token_endpoint_auth_method: "client_secret_post" },
+      checks: ["pkce", "state"],
+      idToken: false,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name || profile.preferred_username || null,
+          email: profile.email,
+          image: profile.picture ?? null,
+        };
+      },
+      allowDangerousEmailAccountLinking: true,
+    },
+  ];
+}
+
 export const authOptions: NextAuthOptions = {
   pages: {
     error: "/login",
   },
   providers: [
+    ...vercelProviders(),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
@@ -119,8 +164,7 @@ export const authOptions: NextAuthOptions = {
       userinfo: `${getMainDomainUrl()}/api/auth/saml/userinfo`,
       profile: async (profile) => {
         const name =
-          `${profile.firstName || ""} ${profile.lastName || ""}`.trim() ||
-          null;
+          `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || null;
 
         return {
           id: profile.id || profile.email,
@@ -193,7 +237,10 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        domain: VERCEL_DEPLOYMENT ? ".papermark.com" : undefined,
+        // Community edition: host-only cookie unless a shared parent domain
+        // is set (upstream hard-coded ".papermark.com", which breaks sign-in
+        // on any other domain).
+        domain: process.env.NEXTAUTH_COOKIE_DOMAIN || undefined,
         secure: VERCEL_DEPLOYMENT,
       },
     },

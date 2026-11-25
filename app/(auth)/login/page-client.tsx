@@ -31,7 +31,21 @@ export default function Login() {
   const isSSORequired = authError === "require-saml-sso";
 
   const [lastUsed, setLastUsed] = useLastUsed();
-  const authMethods = ["google", "email", "linkedin", "passkey"] as const;
+  const authMethods = [
+    "google",
+    "email",
+    "linkedin",
+    "passkey",
+    "vercel",
+  ] as const;
+  // Community edition: choose which sign-in options show, e.g.
+  // NEXT_PUBLIC_LOGIN_METHODS="vercel" or "vercel,email".
+  const enabledMethods = (
+    process.env.NEXT_PUBLIC_LOGIN_METHODS || "email,google,linkedin,passkey,sso"
+  )
+    .split(",")
+    .map((m) => m.trim().toLowerCase());
+  const show = (method: string) => enabledMethods.includes(method);
   type AuthMethod = (typeof authMethods)[number];
   const [clickedMethod, setClickedMethod] = useState<AuthMethod | undefined>(
     undefined,
@@ -86,147 +100,187 @@ export default function Login() {
               </div>
             </div>
           )}
-          <form
-            className="flex flex-col gap-4 px-4 pt-4 sm:px-12"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!emailValidation.success) {
-                toast.error(emailValidation.error.errors[0].message);
-                return;
-              }
-
-              setClickedMethod("email");
-              signIn("email", {
-                email: emailValidation.data,
-                redirect: false,
-                ...(next && next.length > 0 ? { callbackUrl: next } : {}),
-              }).then((res) => {
-                if (res?.ok && !res?.error) {
-                  setLastUsed("credentials");
-                  // Store email in sessionStorage for the verification page
-                  try {
-                    sessionStorage.setItem(
-                      "pendingVerificationEmail",
-                      emailValidation.data,
-                    );
-                  } catch {
-                    // sessionStorage not available, verification page will show email input
-                  }
-                  router.push("/auth/email");
-                } else {
-                  setEmailButtonText("Error sending email - try again?");
-                  toast.error("Error sending email - try again?");
-                  setClickedMethod(undefined);
-                }
-              });
-            }}
-          >
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              disabled={clickedMethod === "email"}
-              // pattern={patternSimpleEmailRegex}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={cn(
-                "flex h-10 w-full rounded-[4px] border-0 bg-background bg-white px-3 py-2 text-sm text-gray-900 ring-1 ring-gray-200 transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white",
-                email.length > 0 && !emailValidation.success
-                  ? "ring-red-500"
-                  : "ring-gray-200",
-              )}
-            />
-            <div className="relative">
-              <Button
-                type="submit"
-                loading={clickedMethod === "email"}
-                disabled={!emailValidation.success || !!clickedMethod}
-                className={cn(
-                  "focus:shadow-outline w-full transform rounded-[4px] px-4 py-2 text-white transition-colors duration-300 ease-in-out focus:outline-none disabled:opacity-100",
-                  "bg-black hover:bg-gray-900",
-                )}
-              >
-                {emailButtonText}
-              </Button>
-              {lastUsed === "credentials" && <LastUsed />}
-            </div>
-          </form>
-          <p className="py-4 text-center">or</p>
-          <div className="flex flex-col space-y-2 px-4 sm:px-12">
-            <div className="relative">
+          {show("vercel") && (
+            <div className="flex flex-col px-4 pt-4 sm:px-12">
               <Button
                 onClick={() => {
-                  setClickedMethod("google");
-                  setLastUsed("google");
-                  signIn("google", {
+                  setClickedMethod("vercel");
+                  signIn("vercel", {
                     ...(next && next.length > 0 ? { callbackUrl: next } : {}),
-                  }).then((res) => {
-                    setClickedMethod(undefined);
-                  });
-                }}
-                loading={clickedMethod === "google"}
-                disabled={clickedMethod && clickedMethod !== "google"}
-                className="flex w-full items-center justify-center space-x-2 border border-gray-300 bg-gray-100 font-normal text-gray-900 hover:bg-gray-200"
-              >
-                <Google className="h-5 w-5" />
-                <span>Continue with Google</span>
-                {clickedMethod !== "google" && lastUsed === "google" && (
-                  <LastUsed />
-                )}
-              </Button>
-            </div>
-            <div className="relative">
-              <Button
-                onClick={() => {
-                  setClickedMethod("linkedin");
-                  setLastUsed("linkedin");
-                  signIn("linkedin", {
-                    ...(next && next.length > 0 ? { callbackUrl: next } : {}),
-                  }).then((res) => {
-                    setClickedMethod(undefined);
-                  });
-                }}
-                loading={clickedMethod === "linkedin"}
-                disabled={clickedMethod && clickedMethod !== "linkedin"}
-                className="flex w-full items-center justify-center space-x-2 border border-gray-300 bg-gray-100 font-normal text-gray-900 hover:bg-gray-200"
-              >
-                <LinkedIn />
-                <span>Continue with LinkedIn</span>
-                {clickedMethod !== "linkedin" && lastUsed === "linkedin" && (
-                  <LastUsed />
-                )}
-              </Button>
-            </div>
-            <div className="relative">
-              <Button
-                onClick={() => {
-                  setLastUsed("passkey");
-                  setClickedMethod("passkey");
-                  signInWithPasskey({
-                    tenantId: process.env.NEXT_PUBLIC_HANKO_TENANT_ID as string,
                   }).then(() => {
                     setClickedMethod(undefined);
                   });
                 }}
-                variant="outline"
-                loading={clickedMethod === "passkey"}
-                disabled={clickedMethod && clickedMethod !== "passkey"}
-                className="flex w-full items-center justify-center space-x-2 border border-gray-300 bg-gray-100 font-normal text-gray-900 hover:bg-gray-200 hover:text-gray-900"
+                loading={clickedMethod === "vercel"}
+                disabled={clickedMethod && clickedMethod !== "vercel"}
+                className="flex w-full items-center justify-center space-x-2 rounded-[4px] bg-black font-normal text-white hover:bg-gray-900"
               >
-                <Passkey className="h-4 w-4" />
-                <span>Continue with a passkey</span>
-                {lastUsed === "passkey" && <LastUsed />}
+                <svg viewBox="0 0 76 65" className="h-4 w-4" aria-hidden="true">
+                  <path
+                    d="M37.5274 0L75.0548 65H0L37.5274 0Z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span>Continue with Vercel</span>
               </Button>
             </div>
-            <div className="relative">
-              <SSOLogin autoExpand={isSSORequired} />
-            </div>
+          )}
+          {show("email") && (
+            <form
+              className="flex flex-col gap-4 px-4 pt-4 sm:px-12"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!emailValidation.success) {
+                  toast.error(emailValidation.error.errors[0].message);
+                  return;
+                }
+
+                setClickedMethod("email");
+                signIn("email", {
+                  email: emailValidation.data,
+                  redirect: false,
+                  ...(next && next.length > 0 ? { callbackUrl: next } : {}),
+                }).then((res) => {
+                  if (res?.ok && !res?.error) {
+                    setLastUsed("credentials");
+                    // Store email in sessionStorage for the verification page
+                    try {
+                      sessionStorage.setItem(
+                        "pendingVerificationEmail",
+                        emailValidation.data,
+                      );
+                    } catch {
+                      // sessionStorage not available, verification page will show email input
+                    }
+                    router.push("/auth/email");
+                  } else {
+                    setEmailButtonText("Error sending email - try again?");
+                    toast.error("Error sending email - try again?");
+                    setClickedMethod(undefined);
+                  }
+                });
+              }}
+            >
+              <Label className="sr-only" htmlFor="email">
+                Email
+              </Label>
+              <Input
+                id="email"
+                placeholder="name@example.com"
+                type="email"
+                autoCapitalize="none"
+                autoComplete="email"
+                autoCorrect="off"
+                disabled={clickedMethod === "email"}
+                // pattern={patternSimpleEmailRegex}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={cn(
+                  "flex h-10 w-full rounded-[4px] border-0 bg-background bg-white px-3 py-2 text-sm text-gray-900 ring-1 ring-gray-200 transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white",
+                  email.length > 0 && !emailValidation.success
+                    ? "ring-red-500"
+                    : "ring-gray-200",
+                )}
+              />
+              <div className="relative">
+                <Button
+                  type="submit"
+                  loading={clickedMethod === "email"}
+                  disabled={!emailValidation.success || !!clickedMethod}
+                  className={cn(
+                    "focus:shadow-outline w-full transform rounded-[4px] px-4 py-2 text-white transition-colors duration-300 ease-in-out focus:outline-none disabled:opacity-100",
+                    "bg-black hover:bg-gray-900",
+                  )}
+                >
+                  {emailButtonText}
+                </Button>
+                {lastUsed === "credentials" && <LastUsed />}
+              </div>
+            </form>
+          )}
+          {show("email") &&
+            (show("google") ||
+              show("linkedin") ||
+              show("passkey") ||
+              show("sso")) && <p className="py-4 text-center">or</p>}
+          <div className="flex flex-col space-y-2 px-4 pt-2 sm:px-12">
+            {show("google") && (
+              <div className="relative">
+                <Button
+                  onClick={() => {
+                    setClickedMethod("google");
+                    setLastUsed("google");
+                    signIn("google", {
+                      ...(next && next.length > 0 ? { callbackUrl: next } : {}),
+                    }).then((res) => {
+                      setClickedMethod(undefined);
+                    });
+                  }}
+                  loading={clickedMethod === "google"}
+                  disabled={clickedMethod && clickedMethod !== "google"}
+                  className="flex w-full items-center justify-center space-x-2 border border-gray-300 bg-gray-100 font-normal text-gray-900 hover:bg-gray-200"
+                >
+                  <Google className="h-5 w-5" />
+                  <span>Continue with Google</span>
+                  {clickedMethod !== "google" && lastUsed === "google" && (
+                    <LastUsed />
+                  )}
+                </Button>
+              </div>
+            )}
+            {show("linkedin") && (
+              <div className="relative">
+                <Button
+                  onClick={() => {
+                    setClickedMethod("linkedin");
+                    setLastUsed("linkedin");
+                    signIn("linkedin", {
+                      ...(next && next.length > 0 ? { callbackUrl: next } : {}),
+                    }).then((res) => {
+                      setClickedMethod(undefined);
+                    });
+                  }}
+                  loading={clickedMethod === "linkedin"}
+                  disabled={clickedMethod && clickedMethod !== "linkedin"}
+                  className="flex w-full items-center justify-center space-x-2 border border-gray-300 bg-gray-100 font-normal text-gray-900 hover:bg-gray-200"
+                >
+                  <LinkedIn />
+                  <span>Continue with LinkedIn</span>
+                  {clickedMethod !== "linkedin" && lastUsed === "linkedin" && (
+                    <LastUsed />
+                  )}
+                </Button>
+              </div>
+            )}
+            {show("passkey") && (
+              <div className="relative">
+                <Button
+                  onClick={() => {
+                    setLastUsed("passkey");
+                    setClickedMethod("passkey");
+                    signInWithPasskey({
+                      tenantId: process.env
+                        .NEXT_PUBLIC_HANKO_TENANT_ID as string,
+                    }).then(() => {
+                      setClickedMethod(undefined);
+                    });
+                  }}
+                  variant="outline"
+                  loading={clickedMethod === "passkey"}
+                  disabled={clickedMethod && clickedMethod !== "passkey"}
+                  className="flex w-full items-center justify-center space-x-2 border border-gray-300 bg-gray-100 font-normal text-gray-900 hover:bg-gray-200 hover:text-gray-900"
+                >
+                  <Passkey className="h-4 w-4" />
+                  <span>Continue with a passkey</span>
+                  {lastUsed === "passkey" && <LastUsed />}
+                </Button>
+              </div>
+            )}
+            {show("sso") && (
+              <div className="relative">
+                <SSOLogin autoExpand={isSSORequired} />
+              </div>
+            )}
           </div>
           <p className="mt-10 w-full max-w-md px-4 text-xs text-muted-foreground sm:px-12">
             By continuing, you agree to Papermark&apos;s{" "}

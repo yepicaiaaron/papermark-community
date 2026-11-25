@@ -55,6 +55,7 @@ import { LOCALHOST_IP } from "@/lib/utils/geo";
 import { checkViewerEmailAccess } from "@/lib/utils/global-block-list";
 import { resolveHtmlContentForRender } from "@/lib/utils/html-document";
 import { validateEmail } from "@/lib/utils/validate-email";
+import { checkViewerEmail } from "@/community/features/viewer-email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -374,6 +375,18 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { message: "Invalid email address." },
             { status: 400 },
+          );
+        }
+
+        // Community edition: work emails only, when switched on.
+        const emailPolicy = await checkViewerEmail(
+          effectiveEmail,
+          link.allowList,
+        );
+        if (!emailPolicy.ok) {
+          return NextResponse.json(
+            { message: emailPolicy.message },
+            { status: 403 },
           );
         }
       }

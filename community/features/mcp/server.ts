@@ -390,7 +390,7 @@ export function createMcpServer(auth: McpAuth) {
     {
       title: "Create a share link",
       description:
-        "Creates a tracked share link for a document or data room. By default viewers must enter their email, downloads are off, and you get notified of views. If the workspace has a default domain (for example docs.bigscreenhack.com) the link uses it.",
+        "Creates a tracked share link for a document or data room. By default viewers must enter their email (and on installs that require it, confirm it with an emailed code), downloads are off, and you get notified of views. If the workspace has a default domain (for example docs.bigscreenhack.com) the link uses it.",
       inputSchema: {
         documentId: z.string().optional(),
         dataroomId: z.string().optional(),
@@ -448,7 +448,9 @@ export function createMcpServer(auth: McpAuth) {
             name: input.name ?? null,
             emailProtected:
               input.requireEmail ?? true ? true : allowList.length > 0,
-            emailAuthenticated: input.verifyEmail ?? false,
+            emailAuthenticated:
+              input.verifyEmail ??
+              process.env.NEXT_PUBLIC_DEFAULT_VERIFY_EMAIL === "true",
             allowList,
             password: input.password
               ? await generateEncrpytedPassword(input.password)

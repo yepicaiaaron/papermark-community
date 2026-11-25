@@ -70,7 +70,9 @@ export const DEFAULT_LINK_PROPS = (
   expiresAt: null,
   password: null,
   emailProtected: true,
-  emailAuthenticated: false,
+  // Community edition: NEXT_PUBLIC_DEFAULT_VERIFY_EMAIL="true" makes new
+  // links send viewers a code before they can see anything.
+  emailAuthenticated: process.env.NEXT_PUBLIC_DEFAULT_VERIFY_EMAIL === "true",
   allowDownload: false,
   allowList: [],
   denyList: [],

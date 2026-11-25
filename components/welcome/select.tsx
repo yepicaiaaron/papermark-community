@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 
 import { useState } from "react";
 
+import { BRAND } from "@/community/brand/config";
 import { useTeam } from "@/context/team-context";
 import { FileChartPieIcon, FileIcon, PresentationIcon } from "lucide-react";
 import { motion } from "motion/react";
@@ -45,7 +46,8 @@ export default function Select() {
     selectedDoc === "sales-document" ||
     (needsDealTypeQuestion && dealType && dealType !== "project-management");
 
-  const showDealTypeOptions = needsDealTypeQuestion && !dealType && !showOtherInput;
+  const showDealTypeOptions =
+    needsDealTypeQuestion && !dealType && !showOtherInput;
   const showDealSizeOptions =
     needsDealSizeQuestion &&
     (dealType || !needsDealTypeQuestion) &&
@@ -170,7 +172,7 @@ export default function Select() {
         className="flex flex-col items-center space-y-10 text-center"
       >
         <p className="text-2xl font-bold tracking-tighter text-foreground">
-          Papermark
+          {BRAND.name}
         </p>
         <h1 className="font-display max-w-md text-3xl font-semibold transition-colors sm:text-4xl">
           Which document do you want to share today?
@@ -241,7 +243,7 @@ export default function Select() {
           {showDealTypeOptions && (
             <div className="space-y-3">
               <p className="text-sm font-medium text-muted-foreground">
-                What do you use Papermark for?
+                What do you use {BRAND.name} for?
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 {DEAL_TYPE_OPTIONS.map((option) => (
@@ -269,7 +271,7 @@ export default function Select() {
           {showOtherInput && !dealType && (
             <div className="space-y-3">
               <p className="text-sm font-medium text-muted-foreground">
-                What do you use Papermark for?
+                What do you use {BRAND.name} for?
               </p>
               <div className="flex items-center justify-center gap-2">
                 <input
@@ -319,10 +321,12 @@ export default function Select() {
 
           {/* Skip option */}
           <button
-            onClick={() => saveSurveyAndProceed(dealType, null, dealTypeOther || null)}
+            onClick={() =>
+              saveSurveyAndProceed(dealType, null, dealTypeOther || null)
+            }
             disabled={isSubmitting}
             aria-disabled={isSubmitting}
-            className="text-xs text-muted-foreground underline-offset-4 hover:underline disabled:opacity-50 disabled:pointer-events-none"
+            className="text-xs text-muted-foreground underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50"
           >
             Skip
           </button>

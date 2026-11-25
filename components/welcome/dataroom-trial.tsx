@@ -2,8 +2,9 @@ import { useRouter } from "next/router";
 
 import { useState } from "react";
 
-import { useTeam } from "@/context/team-context";
+import { BRAND } from "@/community/brand/config";
 import { PlanEnum } from "@/community/stripe/constants";
+import { useTeam } from "@/context/team-context";
 import { E164Number } from "libphonenumber-js";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -53,8 +54,7 @@ export default function DataroomTrial() {
   };
 
   // Check if use case needs deal size question
-  const needsDealSize =
-    !!useCase && useCase !== "project-management";
+  const needsDealSize = !!useCase && useCase !== "project-management";
 
   // Helper function to convert use case to proper dataroom name
   const getDataroomName = (useCaseValue: string, customValue: string = "") => {
@@ -96,7 +96,8 @@ export default function DataroomTrial() {
 
     try {
       // Save survey data to team
-      const dealType = useCase === "other" ? "other" : useCaseToDealType[useCase];
+      const dealType =
+        useCase === "other" ? "other" : useCaseToDealType[useCase];
       if (dealType) {
         await fetch(`/api/teams/${teamInfo?.currentTeam?.id}/survey`, {
           method: "POST",
@@ -187,7 +188,7 @@ export default function DataroomTrial() {
         className="flex flex-col items-center space-y-10 text-center"
       >
         <p className="text-2xl font-bold tracking-tighter text-foreground">
-          Papermark
+          {BRAND.name}
         </p>
         <h1 className="font-display max-w-lg text-3xl font-semibold transition-colors sm:text-4xl">
           Start a 7-day free trial!
@@ -330,7 +331,8 @@ export default function DataroomTrial() {
           {needsDealSize && (
             <div className="space-y-1">
               <Label className="opacity-80">
-                {useCase === "startup-fundraising" || useCase === "fund-management"
+                {useCase === "startup-fundraising" ||
+                useCase === "fund-management"
                   ? "How much are you raising?*"
                   : "What's the deal size?*"}
               </Label>

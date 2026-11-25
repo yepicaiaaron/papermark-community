@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 
+import { BRAND } from "@/community/brand/config";
 import { FileTextIcon, FolderIcon, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -30,7 +31,7 @@ export default function DataroomChoice({ dataroomId }: { dataroomId: string }) {
         className="flex flex-col items-center space-y-10 text-center"
       >
         <p className="text-2xl font-bold tracking-tighter text-foreground">
-          Papermark
+          {BRAND.name}
         </p>
         <h1 className="font-display max-w-md text-3xl font-semibold transition-colors sm:text-4xl">
           How would you like to set up your data room?
@@ -88,7 +89,7 @@ export default function DataroomChoice({ dataroomId }: { dataroomId: string }) {
           }
           className="flex min-h-[200px] flex-col items-center justify-center space-y-5 overflow-hidden p-5 transition-colors hover:bg-orange-50 hover:dark:bg-orange-900/20 md:p-10"
         >
-          <Sparkles className="pointer-events-none h-auto w-12 sm:w-12 text-orange-500" />
+          <Sparkles className="pointer-events-none h-auto w-12 text-orange-500 sm:w-12" />
           <p className="text-lg font-medium text-orange-600 dark:text-orange-400">
             Generate with AI
           </p>

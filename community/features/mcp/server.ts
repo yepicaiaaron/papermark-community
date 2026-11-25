@@ -1,6 +1,7 @@
 import {
   DEFAULT_WATERMARK,
   PROTECT_BY_DEFAULT,
+  WATERMARK_BY_DEFAULT,
 } from "@/community/brand/link-defaults";
 import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -163,6 +164,8 @@ const linkSummary = (link: {
   emailAuthenticated: boolean;
   password: string | null;
   allowDownload: boolean | null;
+  enableScreenshotProtection?: boolean | null;
+  enableWatermark?: boolean | null;
   expiresAt: Date | null;
   isArchived: boolean;
   createdAt: Date;
@@ -175,6 +178,8 @@ const linkSummary = (link: {
   verifiesEmail: link.emailAuthenticated,
   hasPassword: Boolean(link.password),
   allowDownload: Boolean(link.allowDownload),
+  screenshotProtection: Boolean(link.enableScreenshotProtection),
+  watermark: Boolean(link.enableWatermark),
   expiresAt: link.expiresAt,
   archived: link.isArchived,
   createdAt: link.createdAt,
@@ -191,6 +196,8 @@ const linkSelect = {
   emailAuthenticated: true,
   password: true,
   allowDownload: true,
+  enableScreenshotProtection: true,
+  enableWatermark: true,
   expiresAt: true,
   isArchived: true,
   createdAt: true,
@@ -583,8 +590,10 @@ export function createMcpServer(auth: McpAuth) {
             allowDownload: input.allowDownload ?? false,
             enableNotification: input.notifyOnView ?? true,
             enableScreenshotProtection: PROTECT_BY_DEFAULT,
-            enableWatermark: PROTECT_BY_DEFAULT,
-            watermarkConfig: PROTECT_BY_DEFAULT ? DEFAULT_WATERMARK : undefined,
+            enableWatermark: WATERMARK_BY_DEFAULT,
+            watermarkConfig: WATERMARK_BY_DEFAULT
+              ? DEFAULT_WATERMARK
+              : undefined,
             domainId: domainRow?.id ?? null,
             domainSlug: domainRow?.slug ?? null,
             slug,
@@ -640,7 +649,7 @@ export function createMcpServer(auth: McpAuth) {
     {
       title: "Update a share link",
       description:
-        "Change a link's name, password, expiry, download setting or email gate, or archive it to stop access.",
+        "Change a link's name, password, expiry, download setting, email gate, screenshot protection or watermark, or archive it to stop access.",
       inputSchema: {
         linkId: z.string(),
         name: z.string().optional(),
@@ -654,6 +663,11 @@ export function createMcpServer(auth: McpAuth) {
         requireEmail: z.boolean().optional(),
         verifyEmail: z.boolean().optional(),
         archived: z.boolean().optional(),
+        screenshotProtection: z.boolean().optional(),
+        watermark: z
+          .boolean()
+          .optional()
+          .describe("Tiled watermark with the viewer's email and date"),
       },
     },
     (input) =>
@@ -685,6 +699,13 @@ export function createMcpServer(auth: McpAuth) {
               emailAuthenticated: input.verifyEmail,
             }),
             ...(input.archived !== undefined && { isArchived: input.archived }),
+            ...(input.screenshotProtection !== undefined && {
+              enableScreenshotProtection: input.screenshotProtection,
+            }),
+            ...(input.watermark !== undefined && {
+              enableWatermark: input.watermark,
+              ...(input.watermark && { watermarkConfig: DEFAULT_WATERMARK }),
+            }),
           },
           select: linkSelect,
         });

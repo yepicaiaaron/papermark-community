@@ -14,6 +14,7 @@ import {
 import {
   DEFAULT_WATERMARK,
   PROTECT_BY_DEFAULT,
+  WATERMARK_BY_DEFAULT,
 } from "@/community/brand/link-defaults";
 import { PlanEnum } from "@/community/stripe/constants";
 import { useTeam } from "@/context/team-context";
@@ -99,8 +100,8 @@ export const DEFAULT_LINK_PROPS = (
   enableAgreement: false,
   agreementId: null,
   showBanner: showBanner,
-  enableWatermark: PROTECT_BY_DEFAULT,
-  watermarkConfig: PROTECT_BY_DEFAULT ? DEFAULT_WATERMARK : null,
+  enableWatermark: WATERMARK_BY_DEFAULT,
+  watermarkConfig: WATERMARK_BY_DEFAULT ? DEFAULT_WATERMARK : null,
   audienceType: groupId ? LinkAudienceType.GROUP : LinkAudienceType.GENERAL,
   groupId: groupId,
   customFields: [],

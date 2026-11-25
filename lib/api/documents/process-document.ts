@@ -1,6 +1,7 @@
 import {
   DEFAULT_WATERMARK,
   PROTECT_BY_DEFAULT,
+  WATERMARK_BY_DEFAULT,
 } from "@/community/brand/link-defaults";
 import type {
   convertFilesToPdfTask,
@@ -127,8 +128,8 @@ export const processDocument = async ({
             emailAuthenticated:
               process.env.NEXT_PUBLIC_DEFAULT_VERIFY_EMAIL === "true",
             enableScreenshotProtection: PROTECT_BY_DEFAULT,
-            enableWatermark: PROTECT_BY_DEFAULT,
-            ...(PROTECT_BY_DEFAULT && { watermarkConfig: DEFAULT_WATERMARK }),
+            enableWatermark: WATERMARK_BY_DEFAULT,
+            ...(WATERMARK_BY_DEFAULT && { watermarkConfig: DEFAULT_WATERMARK }),
           },
         },
       }),

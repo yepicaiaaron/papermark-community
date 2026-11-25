@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { XOctagonIcon } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -7,6 +7,24 @@ import { Button } from "@/components/ui/button";
 
 export const ScreenProtector = () => {
   const [blockScreen, setBlockScreen] = useState<boolean>(false);
+  // Community edition: blank the page whenever the window loses focus or
+  // the tab is hidden. Snipping tools, capture apps and screen recorders
+  // usually take focus first, so they capture a blank page.
+  const [unfocused, setUnfocused] = useState<boolean>(false);
+  useEffect(() => {
+    const hide = () => setUnfocused(true);
+    const show = () => setUnfocused(false);
+    const onVisibility = () =>
+      document.visibilityState === "hidden" ? hide() : show();
+    window.addEventListener("blur", hide);
+    window.addEventListener("focus", show);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("blur", hide);
+      window.removeEventListener("focus", show);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
 
   // Comprehensive screenshot prevention for all major platforms
   const handleScreenshotAttempt = (event: KeyboardEvent) => {
@@ -116,6 +134,14 @@ export const ScreenProtector = () => {
   }
 
   // will be hidden unless user prints the screen
+  if (unfocused) {
+    return (
+      <div className="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center bg-white">
+        <p className="text-sm text-gray-500">Click here to keep reading.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="absolute inset-0 hidden h-screen w-screen bg-white print:block"></div>
   );

@@ -12,7 +12,6 @@ import { usePlan } from "@/lib/swr/use-billing";
 import X from "@/components/shared/icons/x";
 import { Button } from "@/components/ui/button";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ProAnnualBannerUpstream({
   setShowProAnnualBanner,
 }: {
@@ -92,7 +91,6 @@ function ProAnnualBannerUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function ProAnnualBanner(
   _props: Parameters<typeof ProAnnualBannerUpstream>[0],
 ): null {

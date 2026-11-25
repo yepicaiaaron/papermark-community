@@ -20,7 +20,6 @@ import X from "../shared/icons/x";
 import { Badge } from "../ui/badge";
 import { Switch } from "../ui/switch";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function UpgradePlanModalUpstream({
   clickedPlan,
   trigger,
@@ -302,7 +301,6 @@ function UpgradePlanModalUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function UpgradePlanModal(
   _props: Parameters<typeof UpgradePlanModalUpstream>[0],
 ): null {

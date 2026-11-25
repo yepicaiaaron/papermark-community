@@ -23,7 +23,6 @@ interface YearlyUpgradeBannerProps {
   setShowBanner: Dispatch<SetStateAction<boolean | null>>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function YearlyUpgradeBannerUpstream({
   setShowBanner,
 }: YearlyUpgradeBannerProps) {
@@ -160,7 +159,6 @@ function YearlyUpgradeBannerUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function YearlyUpgradeBanner(
   _props: Parameters<typeof YearlyUpgradeBannerUpstream>[0],
 ): null {

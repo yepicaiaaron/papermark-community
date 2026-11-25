@@ -2,7 +2,6 @@ import { CrownIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function PlanBadgeUpstream({
   plan,
   className,
@@ -23,7 +22,6 @@ function PlanBadgeUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function PlanBadge(
   _props: Parameters<typeof PlanBadgeUpstream>[0],
 ): null {

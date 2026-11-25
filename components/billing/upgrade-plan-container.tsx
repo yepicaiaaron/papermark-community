@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UpgradeButton } from "@/components/ui/upgrade-button";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function UpgradePlanContainerUpstream() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
@@ -374,7 +373,6 @@ function UpgradePlanContainerUpstream() {
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function UpgradePlanContainer(
   _props: Record<string, never> = {},
 ): null {

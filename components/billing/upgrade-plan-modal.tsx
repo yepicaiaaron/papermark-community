@@ -181,7 +181,6 @@ const DATAROOM_CONTEXT_TRIGGERS = [
   "dataroom_trial_form",
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function UpgradePlanModalUpstream({
   clickedPlan,
   trigger,
@@ -843,7 +842,6 @@ function UpgradePlanModalUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function UpgradePlanModal(
   _props: Parameters<typeof UpgradePlanModalUpstream>[0],
 ): null {

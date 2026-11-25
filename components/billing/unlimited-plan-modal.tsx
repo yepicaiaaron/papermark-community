@@ -27,7 +27,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function UnlimitedPlanModalUpstream({
   children,
   period: externalPeriod,
@@ -190,7 +189,6 @@ function UnlimitedPlanModalUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function UnlimitedPlanModal(
   _props: Parameters<typeof UnlimitedPlanModalUpstream>[0],
 ): null {

@@ -152,7 +152,6 @@ const PlanSelector = ({
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function UpgradePlanModalWithDiscountUpstream({
   clickedPlan,
   trigger,
@@ -575,7 +574,6 @@ function UpgradePlanModalWithDiscountUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function UpgradePlanModalWithDiscount(
   _props: Parameters<typeof UpgradePlanModalWithDiscountUpstream>[0],
 ): null {

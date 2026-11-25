@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 
 import { UpgradePlanModal } from "./upgrade-plan-modal";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ProBannerUpstream({
   setShowProBanner,
 }: {
@@ -52,7 +51,6 @@ function ProBannerUpstream({
 }
 
 // Community edition: no billing, so no upgrade prompts.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function ProBanner(
   _props: Parameters<typeof ProBannerUpstream>[0],
 ): null {

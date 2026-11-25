@@ -246,6 +246,25 @@ export const authOptions: NextAuthOptions = {
     },
   },
   callbacks: {
+    // Community edition: optional allow-list of who may sign in, e.g.
+    // COMMUNITY_ALLOWED_SIGNIN="@example.com,person@gmail.com". Empty means
+    // anyone. Checked before a sign-in email is sent, too.
+    signIn: async ({ user, email }) => {
+      const allowed = (process.env.COMMUNITY_ALLOWED_SIGNIN || "")
+        .split(",")
+        .map((v) => v.trim().toLowerCase())
+        .filter(Boolean);
+      if (allowed.length === 0) return true;
+      const address = (user?.email || "").toLowerCase();
+      if (!address) return false;
+      const ok = allowed.some((rule) =>
+        rule.startsWith("@") ? address.endsWith(rule) : address === rule,
+      );
+      if (!ok && email?.verificationRequest) {
+        console.warn("[auth] sign-in email refused for", address);
+      }
+      return ok;
+    },
     jwt: async (params) => {
       const { token, user, trigger, account } = params;
       if (!token.email) {

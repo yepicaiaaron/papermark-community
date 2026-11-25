@@ -3,24 +3,25 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import React from "react";
 
-import { useTeam } from "@/context/team-context";
 import { PLANS } from "@/community/stripe/utils";
+import { useTeam } from "@/context/team-context";
 import { CheckIcon } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useAnalytics } from "@/lib/analytics";
 import { usePlan } from "@/lib/swr/use-billing";
 import { capitalize, cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { DataroomTrialModal } from "../datarooms/dataroom-trial-modal";
 import X from "../shared/icons/x";
 import { Badge } from "../ui/badge";
 import { Switch } from "../ui/switch";
 
-export function UpgradePlanModal({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function UpgradePlanModalUpstream({
   clickedPlan,
   trigger,
   open,
@@ -298,4 +299,12 @@ export function UpgradePlanModal({
       </DialogContent>
     </Dialog>
   );
+}
+
+// Community edition: no billing, so no upgrade prompts.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function UpgradePlanModal(
+  _props: Parameters<typeof UpgradePlanModalUpstream>[0],
+): null {
+  return null;
 }

@@ -1,7 +1,7 @@
 import {
-  type Currency,
   CURRENCY_LABEL,
   CURRENCY_SYMBOL,
+  type Currency,
 } from "@/community/stripe/currency";
 
 import { cn } from "@/lib/utils";

@@ -1,3 +1,7 @@
+import {
+  DEFAULT_WATERMARK,
+  PROTECT_BY_DEFAULT,
+} from "@/community/brand/link-defaults";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LinkAudienceType } from "@prisma/client";
 import { lookup } from "node:dns/promises";
@@ -50,7 +54,9 @@ function guard(auth: McpAuth, scope: string, run: () => Promise<ToolResult>) {
   }
   return run().catch((error: unknown) => {
     console.error("[mcp] tool error", error);
-    return fail(error instanceof Error ? error.message : "Something went wrong");
+    return fail(
+      error instanceof Error ? error.message : "Something went wrong",
+    );
   });
 }
 
@@ -130,13 +136,15 @@ async function resolveLinkDomain(
 
   const finalSlug =
     slug?.trim() ||
-    Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 4);
+    Math.random().toString(36).slice(2, 8) +
+      Math.random().toString(36).slice(2, 4);
   const clash = await prisma.link.findUnique({
     where: {
       domainSlug_slug: { domainSlug: domainRow.slug, slug: finalSlug },
     },
   });
-  if (clash) throw new Error(`${domainRow.slug}/${finalSlug} is already taken.`);
+  if (clash)
+    throw new Error(`${domainRow.slug}/${finalSlug} is already taken.`);
   return { domainRow, slug: finalSlug };
 }
 
@@ -324,7 +332,10 @@ export function createMcpServer(auth: McpAuth) {
         "Downloads a file from a public URL (PDF, Word, PowerPoint, Excel, images; up to 50 MB) and adds it to the workspace. Optionally creates a share link straight away.",
       inputSchema: {
         url: z.string().url(),
-        name: z.string().optional().describe("Name to show; defaults to the file name"),
+        name: z
+          .string()
+          .optional()
+          .describe("Name to show; defaults to the file name"),
         createLink: z.boolean().optional().describe("Also create a share link"),
       },
     },
@@ -335,7 +346,8 @@ export function createMcpServer(auth: McpAuth) {
         if (!supported) {
           return fail(`Files of type ${file.contentType} are not supported.`);
         }
-        const fileName = name?.trim() || fileNameFrom(file.url, file.contentType);
+        const fileName =
+          name?.trim() || fileNameFrom(file.url, file.contentType);
 
         let numPages = 1;
         if (supported === "pdf") {
@@ -394,7 +406,10 @@ export function createMcpServer(auth: McpAuth) {
       inputSchema: {
         documentId: z.string().optional(),
         dataroomId: z.string().optional(),
-        name: z.string().optional().describe("Internal name, e.g. the investor's name"),
+        name: z
+          .string()
+          .optional()
+          .describe("Internal name, e.g. the investor's name"),
         requireEmail: z.boolean().optional(),
         verifyEmail: z
           .boolean()
@@ -447,7 +462,7 @@ export function createMcpServer(auth: McpAuth) {
             ownerId: auth.userId,
             name: input.name ?? null,
             emailProtected:
-              input.requireEmail ?? true ? true : allowList.length > 0,
+              (input.requireEmail ?? true) ? true : allowList.length > 0,
             emailAuthenticated:
               input.verifyEmail ??
               process.env.NEXT_PUBLIC_DEFAULT_VERIFY_EMAIL === "true",
@@ -458,6 +473,9 @@ export function createMcpServer(auth: McpAuth) {
             expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
             allowDownload: input.allowDownload ?? false,
             enableNotification: input.notifyOnView ?? true,
+            enableScreenshotProtection: PROTECT_BY_DEFAULT,
+            enableWatermark: PROTECT_BY_DEFAULT,
+            watermarkConfig: PROTECT_BY_DEFAULT ? DEFAULT_WATERMARK : undefined,
             domainId: domainRow?.id ?? null,
             domainSlug: domainRow?.slug ?? null,
             slug,
@@ -736,7 +754,9 @@ export function createMcpServer(auth: McpAuth) {
           (excludeEmails ?? []).map((e) => e.toLowerCase()),
         );
         const excludedIds = views
-          .filter((v) => v.viewerEmail && excluded.has(v.viewerEmail.toLowerCase()))
+          .filter(
+            (v) => v.viewerEmail && excluded.has(v.viewerEmail.toLowerCase()),
+          )
           .map((v) => v.id);
         const kept = views.filter((v) => !excludedIds.includes(v.id));
         const excludedViewIds = excludedIds.join(",") || "none";

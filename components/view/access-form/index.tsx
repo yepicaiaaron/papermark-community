@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { BRAND } from "@/community/brand/config";
 import { resolveBrandLogo } from "@/community/features/branding/lib/brand-logo";
 import { Brand, CustomField, DataroomBrand, LinkType } from "@prisma/client";
 import { ArrowUpRightIcon } from "lucide-react";
@@ -100,7 +101,9 @@ export default function AccessForm({
     brand && "privacyPolicyUrl" in brand ? brand.privacyPolicyUrl : null;
   const privacyPolicyUrl =
     customPrivacyPolicyUrl ||
-    `${process.env.NEXT_PUBLIC_MARKETING_URL}/privacy`;
+    (BRAND.custom
+      ? process.env.NEXT_PUBLIC_BRAND_PRIVACY_URL || null
+      : `${process.env.NEXT_PUBLIC_MARKETING_URL}/privacy`);
 
   const isSigningAgreement =
     signingProvider === "DOCUMENSO" || agreementContentType === "SIGNING";
@@ -294,33 +297,38 @@ export default function AccessForm({
                     "This document is securely shared with you using",
                   )}{" "}
               <a
-                href="https://www.papermark.com"
+                href={BRAND.custom ? BRAND.url : "https://www.papermark.com"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium"
                 style={{ color: accessFormTheme.mutedTextColor }}
               >
-                {t("footer.papermark", "Papermark")}
+                {BRAND.custom ? BRAND.name : t("footer.papermark", "Papermark")}
               </a>
               .
             </p>
           ) : null}
-          <p
-            className="text-center text-sm tracking-tight"
-            style={{ color: accessFormTheme.subtleTextColor }}
-          >
-            {t("footer.seeHowWeProtect", "See how we protect your data in our")}{" "}
-            <a
-              href={privacyPolicyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5"
-              style={{ color: accessFormTheme.mutedTextColor }}
+          {privacyPolicyUrl ? (
+            <p
+              className="text-center text-sm tracking-tight"
+              style={{ color: accessFormTheme.subtleTextColor }}
             >
-              <span>{t("footer.privacyPolicy", "Privacy Policy")}</span>
-              <ArrowUpRightIcon className="h-3 w-3" />
-            </a>
-          </p>
+              {t(
+                "footer.seeHowWeProtect",
+                "See how we protect your data in our",
+              )}{" "}
+              <a
+                href={privacyPolicyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-0.5"
+                style={{ color: accessFormTheme.mutedTextColor }}
+              >
+                <span>{t("footer.privacyPolicy", "Privacy Policy")}</span>
+                <ArrowUpRightIcon className="h-3 w-3" />
+              </a>
+            </p>
+          ) : null}
         </div>
       </div>
     </AccessFormThemeProvider>

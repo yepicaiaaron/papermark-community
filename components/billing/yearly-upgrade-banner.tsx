@@ -4,10 +4,10 @@ import { useRouter } from "next/router";
 
 import { Dispatch, SetStateAction, useState } from "react";
 
-import { useTeam } from "@/context/team-context";
 import { PlanEnum, getPlanFeatures } from "@/community/stripe/constants";
 import { getPriceIdFromPlan } from "@/community/stripe/functions/get-price-id-from-plan";
 import { PLANS } from "@/community/stripe/utils";
+import { useTeam } from "@/context/team-context";
 import Cookies from "js-cookie";
 import { CheckIcon, Sparkles, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -23,7 +23,8 @@ interface YearlyUpgradeBannerProps {
   setShowBanner: Dispatch<SetStateAction<boolean | null>>;
 }
 
-export default function YearlyUpgradeBanner({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function YearlyUpgradeBannerUpstream({
   setShowBanner,
 }: YearlyUpgradeBannerProps) {
   const router = useRouter();
@@ -156,4 +157,12 @@ export default function YearlyUpgradeBanner({
       </motion.aside>
     </AnimatePresence>
   );
+}
+
+// Community edition: no billing, so no upgrade prompts.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function YearlyUpgradeBanner(
+  _props: Parameters<typeof YearlyUpgradeBannerUpstream>[0],
+): null {
+  return null;
 }

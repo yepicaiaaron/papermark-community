@@ -4,10 +4,14 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import React from "react";
 
-import { useTeam } from "@/context/team-context";
-import { Feature, PlanEnum, getPlanFeatures } from "@/community/stripe/constants";
+import {
+  Feature,
+  PlanEnum,
+  getPlanFeatures,
+} from "@/community/stripe/constants";
 import { getPriceIdFromPlan } from "@/community/stripe/functions/get-price-id-from-plan";
 import { PLANS } from "@/community/stripe/utils";
+import { useTeam } from "@/context/team-context";
 import { CheckIcon, CircleHelpIcon, UserPlusIcon, XIcon } from "lucide-react";
 
 import { useAnalytics } from "@/lib/analytics";
@@ -177,7 +181,8 @@ const DATAROOM_CONTEXT_TRIGGERS = [
   "dataroom_trial_form",
 ];
 
-export function UpgradePlanModal({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function UpgradePlanModalUpstream({
   clickedPlan,
   trigger,
   open,
@@ -344,9 +349,7 @@ export function UpgradePlanModal({
               )}
               <div className="flex items-center justify-center gap-2">
                 <PeriodToggle value={period} onChange={setPeriod} />
-                <span className="text-sm text-[#fb7a00]">
-                  (Save up to 35%)
-                </span>
+                <span className="text-sm text-[#fb7a00]">(Save up to 35%)</span>
               </div>
             </div>
           </div>
@@ -837,4 +840,12 @@ export function UpgradePlanModal({
       </DialogContent>
     </Dialog>
   );
+}
+
+// Community edition: no billing, so no upgrade prompts.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function UpgradePlanModal(
+  _props: Parameters<typeof UpgradePlanModalUpstream>[0],
+): null {
+  return null;
 }

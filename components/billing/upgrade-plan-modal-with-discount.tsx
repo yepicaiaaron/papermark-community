@@ -4,10 +4,14 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import React from "react";
 
-import { useTeam } from "@/context/team-context";
-import { Feature, PlanEnum, getPlanFeatures } from "@/community/stripe/constants";
+import {
+  Feature,
+  PlanEnum,
+  getPlanFeatures,
+} from "@/community/stripe/constants";
 import { getPriceIdFromPlan } from "@/community/stripe/functions/get-price-id-from-plan";
 import { PLANS } from "@/community/stripe/utils";
+import { useTeam } from "@/context/team-context";
 import {
   CheckIcon,
   CircleHelpIcon,
@@ -148,7 +152,8 @@ const PlanSelector = ({
   );
 };
 
-export function UpgradePlanModalWithDiscount({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function UpgradePlanModalWithDiscountUpstream({
   clickedPlan,
   trigger,
   open,
@@ -522,9 +527,7 @@ export function UpgradePlanModalWithDiscount({
                                   }
                                   const data = await res.json();
                                   if (!data.url) {
-                                    throw new Error(
-                                      "Failed to start checkout",
-                                    );
+                                    throw new Error("Failed to start checkout");
                                   }
                                   window.location.href = data.url;
                                 })
@@ -569,4 +572,12 @@ export function UpgradePlanModalWithDiscount({
       </DialogContent>
     </Dialog>
   );
+}
+
+// Community edition: no billing, so no upgrade prompts.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function UpgradePlanModalWithDiscount(
+  _props: Parameters<typeof UpgradePlanModalWithDiscountUpstream>[0],
+): null {
+  return null;
 }

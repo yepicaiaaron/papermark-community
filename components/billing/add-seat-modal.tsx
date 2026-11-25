@@ -3,16 +3,16 @@ import { useRouter } from "next/router";
 
 import { useEffect, useState } from "react";
 
-import { UnlimitedPlanModal } from "@/components/billing/unlimited-plan-modal";
-import { useTeam } from "@/context/team-context";
 import { getPriceIdFromPlan } from "@/community/stripe/functions/get-price-id-from-plan";
 import { getQuantityFromPriceId } from "@/community/stripe/functions/get-quantity-from-plan";
+import { useTeam } from "@/context/team-context";
 import { toast } from "sonner";
 
 import { useAnalytics } from "@/lib/analytics";
 import { usePlan } from "@/lib/swr/use-billing";
 import useLimits from "@/lib/swr/use-limits";
 
+import { UnlimitedPlanModal } from "@/components/billing/unlimited-plan-modal";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -61,9 +61,10 @@ export function AddSeatModal({
   }, [open]);
 
   // Calculate the total number of seats after the update
-  const totalSeatsAfterUpdate = limits?.users && limits.users !== Infinity
-    ? limits.users + quantity
-    : quantity;
+  const totalSeatsAfterUpdate =
+    limits?.users && limits.users !== Infinity
+      ? limits.users + quantity
+      : quantity;
 
   const handleDecrement = () => {
     if (quantity > 1) {

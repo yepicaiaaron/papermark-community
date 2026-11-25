@@ -215,11 +215,6 @@ export function AppSidebarContent() {
                 },
               ]
             : []),
-          {
-            title: "Billing",
-            url: "/settings/billing",
-            current: router.pathname.includes("settings/billing"),
-          },
         ],
       },
     ],

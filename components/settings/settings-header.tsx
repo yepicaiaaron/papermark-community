@@ -84,11 +84,6 @@ export function SettingsHeader() {
             segment: "security",
             disabled: !isAdmin,
           },
-          {
-            label: "Billing",
-            href: `/settings/billing`,
-            segment: "billing",
-          },
         ]}
       />
     </header>

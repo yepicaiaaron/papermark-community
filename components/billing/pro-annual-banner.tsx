@@ -2,8 +2,8 @@ import { useRouter } from "next/router";
 
 import { Dispatch, SetStateAction, useState } from "react";
 
-import { useTeam } from "@/context/team-context";
 import { getPriceIdFromPlan } from "@/community/stripe/functions/get-price-id-from-plan";
+import { useTeam } from "@/context/team-context";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 
@@ -12,7 +12,8 @@ import { usePlan } from "@/lib/swr/use-billing";
 import X from "@/components/shared/icons/x";
 import { Button } from "@/components/ui/button";
 
-export default function ProAnnualBanner({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function ProAnnualBannerUpstream({
   setShowProAnnualBanner,
 }: {
   setShowProAnnualBanner: Dispatch<SetStateAction<boolean | null>>;
@@ -88,4 +89,12 @@ export default function ProAnnualBanner({
       </div>
     </aside>
   );
+}
+
+// Community edition: no billing, so no upgrade prompts.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function ProAnnualBanner(
+  _props: Parameters<typeof ProAnnualBannerUpstream>[0],
+): null {
+  return null;
 }

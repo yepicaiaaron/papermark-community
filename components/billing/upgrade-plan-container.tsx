@@ -2,9 +2,9 @@ import { useRouter } from "next/router";
 
 import { useState } from "react";
 
-import { useTeam } from "@/context/team-context";
 import { CancellationModal } from "@/community/features/billing/cancellation/components";
 import { PlanEnum } from "@/community/stripe/constants";
+import { useTeam } from "@/context/team-context";
 import { MoreVertical, SquareXIcon } from "lucide-react";
 import { toast } from "sonner";
 import { mutate } from "swr";
@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UpgradeButton } from "@/components/ui/upgrade-button";
 
-export default function UpgradePlanContainer() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function UpgradePlanContainerUpstream() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [unpauseLoading, setUnpauseLoading] = useState<boolean>(false);
@@ -220,7 +221,10 @@ export default function UpgradePlanContainer() {
     if (isCancelled) {
       return (
         <>
-          <Button onClick={handleReactivateSubscription} loading={unpauseLoading}>
+          <Button
+            onClick={handleReactivateSubscription}
+            loading={unpauseLoading}
+          >
             Reactivate subscription
           </Button>
           <Button variant="outline" onClick={goToInvoices}>
@@ -357,9 +361,7 @@ export default function UpgradePlanContainer() {
               </div>
             )}
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {ButtonList()}
-          </div>
+          <div className="flex shrink-0 items-center gap-2">{ButtonList()}</div>
         </div>
       </div>
 
@@ -369,4 +371,12 @@ export default function UpgradePlanContainer() {
       />
     </>
   );
+}
+
+// Community edition: no billing, so no upgrade prompts.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function UpgradePlanContainer(
+  _props: Record<string, never> = {},
+): null {
+  return null;
 }

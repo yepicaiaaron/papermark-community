@@ -11,8 +11,12 @@ import {
   useState,
 } from "react";
 
-import { useTeam } from "@/context/team-context";
+import {
+  DEFAULT_WATERMARK,
+  PROTECT_BY_DEFAULT,
+} from "@/community/brand/link-defaults";
 import { PlanEnum } from "@/community/stripe/constants";
+import { useTeam } from "@/context/team-context";
 import { LinkAudienceType, LinkPreset, LinkType } from "@prisma/client";
 import { RefreshCwIcon } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -79,7 +83,7 @@ export const DEFAULT_LINK_PROPS = (
   visitorGroupIds: [],
   enableNotification: true,
   enableFeedback: false,
-  enableScreenshotProtection: false,
+  enableScreenshotProtection: PROTECT_BY_DEFAULT,
   enableConfidentialView: false,
   enableCustomMetatag: false,
   metaTitle: null,
@@ -95,8 +99,8 @@ export const DEFAULT_LINK_PROPS = (
   enableAgreement: false,
   agreementId: null,
   showBanner: showBanner,
-  enableWatermark: false,
-  watermarkConfig: null,
+  enableWatermark: PROTECT_BY_DEFAULT,
+  watermarkConfig: PROTECT_BY_DEFAULT ? DEFAULT_WATERMARK : null,
   audienceType: groupId ? LinkAudienceType.GROUP : LinkAudienceType.GENERAL,
   groupId: groupId,
   customFields: [],

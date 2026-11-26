@@ -25,7 +25,13 @@ const postmarkToken = process.env.POSTMARK_SERVER_TOKEN;
  * can't send from that domain and shouldn't send those emails at all.
  */
 const isUpstreamMarketing = (from?: string, marketing?: boolean) =>
-  marketing || (!!from && /@papermark\.com>?$/i.test(from.trim()));
+  marketing || (!!from && PAPERMARK_ADDRESS.test(from));
+
+/** Any papermark.com / papermark.io address, with or without a display name. */
+const PAPERMARK_ADDRESS = /@(?:[a-z0-9-]+\.)*papermark\.(?:com|io)\b/i;
+
+const addresses = (value?: string | string[]) =>
+  (Array.isArray(value) ? value : value ? [value] : []).filter(Boolean);
 
 async function sendWithPostmark({
   from,
@@ -56,7 +62,7 @@ async function sendWithPostmark({
     body: JSON.stringify({
       From: from,
       To: to,
-      Cc: Array.isArray(cc) ? cc.join(",") : cc,
+      Cc: Array.isArray(cc) ? cc.join(",") || undefined : cc,
       ReplyTo: replyTo,
       Subject: subject,
       HtmlBody: html,
@@ -110,6 +116,12 @@ export const sendEmail = async ({
   if (isUpstreamMarketing(from, marketing)) {
     return null;
   }
+
+  // Never send to, copy in or route replies to Papermark. Upstream code has
+  // papermark.com addresses in a few places; none of them belong here.
+  if (PAPERMARK_ADDRESS.test(to)) return null;
+  cc = addresses(cc).filter((a) => !PAPERMARK_ADDRESS.test(a));
+  if (replyTo && PAPERMARK_ADDRESS.test(replyTo)) replyTo = undefined;
 
   if (!resend && !postmarkToken) {
     throw new Error(

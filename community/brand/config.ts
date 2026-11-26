@@ -18,4 +18,24 @@ export const BRAND = {
     "Share documents. Not attachments.",
   url: process.env.NEXT_PUBLIC_BRAND_URL || "/",
   favicon: process.env.NEXT_PUBLIC_BRAND_FAVICON_URL || "/favicon.ico",
+  /**
+   * NEXT_PUBLIC_BRAND_EMAIL_LOGO_URL  logo for emails. Must be PNG or JPG
+   * (most email apps don't show SVG). Falls back to the favicon if that is a
+   * PNG or JPG, otherwise emails show the brand name only.
+   */
+  emailLogo:
+    process.env.NEXT_PUBLIC_BRAND_EMAIL_LOGO_URL ||
+    (/\.(png|jpe?g|gif)$/i.test(process.env.NEXT_PUBLIC_BRAND_FAVICON_URL ?? "")
+      ? (process.env.NEXT_PUBLIC_BRAND_FAVICON_URL as string)
+      : ""),
+  /** Where the app itself lives, for links in emails. */
+  appUrl: (
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXTAUTH_URL ||
+    "http://localhost:3000"
+  ).replace(/\/$/, ""),
 };
+
+/** Absolute link into the app, e.g. appUrl("/documents/123"). */
+export const appUrl = (path = "") =>
+  `${BRAND.appUrl}${path.startsWith("/") || !path ? path : `/${path}`}`;

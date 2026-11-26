@@ -29,6 +29,11 @@ export const sendOtpVerificationEmail = async (
 
   if (customEmail && teamId) {
     from = customEmail;
+  }
+
+  // Community edition: show the workspace's own logo (Branding settings)
+  // whenever it has one, not only when it sends from a custom address.
+  if (teamId) try {
     const hasOverride = !!(
       brandContext?.linkBrandId || brandContext?.dataroomBrandId
     );
@@ -43,6 +48,8 @@ export const sendOtpVerificationEmail = async (
     } else {
       logo = await readCachedBrandLogo(teamId);
     }
+  } catch (e) {
+    console.error("Could not load workspace logo for email", e);
   }
 
   const emailTemplate = OtpEmailVerification({

@@ -53,9 +53,10 @@ export const sendOnboardingEmail = async (
 
   try {
     await sendEmail({
+      // Upstream product email: not sent by the community edition.
+      marketing: true,
       to: email as string,
       subject,
-      replyTo: "Papermark <support@papermark.com>",
       react: emailTemplate,
       test: process.env.NODE_ENV === "development",
     });

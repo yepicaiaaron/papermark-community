@@ -70,18 +70,26 @@ export default function App({
         />
         <meta
           property="og:image"
-          content="https://www.papermark.com/_static/meta-image.png"
+          content={
+            BRAND.custom
+              ? BRAND.emailLogo || BRAND.logo
+              : "https://www.papermark.com/_static/meta-image.png"
+          }
           key="og-image"
         />
         <meta
           property="og:url"
-          content="https://www.papermark.com"
+          content={BRAND.custom ? BRAND.appUrl : "https://www.papermark.com"}
           key="og-url"
         />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@papermarkio" />
-        <meta name="twitter:creator" content="@papermarkio" />
+        {BRAND.custom ? null : (
+          <meta name="twitter:site" content="@papermarkio" />
+        )}
+        {BRAND.custom ? null : (
+          <meta name="twitter:creator" content="@papermarkio" />
+        )}
         <meta name="twitter:title" content={BRAND.name} key="tw-title" />
         <meta
           name="twitter:description"
@@ -94,7 +102,11 @@ export default function App({
         />
         <meta
           name="twitter:image"
-          content="https://www.papermark.com/_static/meta-image.png"
+          content={
+            BRAND.custom
+              ? BRAND.emailLogo || BRAND.logo
+              : "https://www.papermark.com/_static/meta-image.png"
+          }
           key="tw-image"
         />
         <link rel="icon" href={BRAND.favicon} key="favicon" />

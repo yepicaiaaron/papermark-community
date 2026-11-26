@@ -1,6 +1,5 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import Image from "next/image";
 
 import { useCallback, useState } from "react";
 
@@ -14,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 
-import PapermarkLogo from "@/public/_static/papermark-logo.svg";
+import { BRAND } from "@/community/brand/config";
 
 import { Button } from "@/components/ui/button";
 
@@ -168,21 +167,18 @@ export default function NotificationPreferencesPage({
   return (
     <>
       <Head>
-        <title>Notification Preferences | Papermark</title>
+        <title>{`Email settings | ${BRAND.name}`}</title>
       </Head>
       <div className="flex min-h-screen flex-col bg-gray-50">
         <header className="px-6 py-5">
           <a
-            href="https://www.papermark.com"
+            href={BRAND.url}
             target="_blank"
             rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-gray-900"
           >
-            <Image
-              src={PapermarkLogo}
-              width={119}
-              height={32}
-              alt="Papermark"
-            />
+            <img src={BRAND.logo} alt="" className="h-8 w-auto" />
+            {BRAND.name}
           </a>
         </header>
 
@@ -319,15 +315,7 @@ export default function NotificationPreferencesPage({
             </div>
 
             <p className="mt-4 text-center text-xs text-muted-foreground/60">
-              Powered by{" "}
-              <a
-                href="https://www.papermark.com"
-                className="underline underline-offset-2 transition-colors hover:text-muted-foreground"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Papermark
-              </a>
+              {BRAND.name}
             </p>
           </motion.div>
         </div>

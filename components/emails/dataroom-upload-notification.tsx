@@ -1,22 +1,12 @@
 import React from "react";
 
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "react-email";
+import { appUrl } from "@/community/brand/config";
 
-import { Footer } from "./shared/footer";
+import BrandEmail, { BrandButton, P } from "./shared/brand-email";
 
 export default function DataroomUploadNotification({
   dataroomId = "123",
-  dataroomName = "Example Dataroom",
+  dataroomName = "Example data room",
   uploaderEmail = "visitor@example.com",
   documentNames = ["Document 1.pdf", "Document 2.pdf"],
   linkName = "Link #abc12",
@@ -27,77 +17,28 @@ export default function DataroomUploadNotification({
   documentNames: string[];
   linkName: string;
 }) {
-  const documentCount = documentNames.length;
-  const documentLabel = documentCount === 1 ? "document" : "documents";
-
+  const count = documentNames.length;
+  const files = `${count} file${count !== 1 ? "s" : ""}`;
   return (
-    <Html>
-      <Head />
-      <Preview>
-        {`${documentCount} new ${documentLabel} uploaded to ${dataroomName}`}
-      </Preview>
-      <Tailwind>
-        <Body className="mx-auto my-auto bg-white font-sans">
-          <Container className="mx-auto my-10 w-[465px] p-5">
-            <Text className="mx-0 mb-8 mt-4 p-0 text-center text-2xl font-normal">
-              <span className="font-bold tracking-tighter">Papermark</span>
-            </Text>
-            <Text className="mx-0 my-7 p-0 text-center text-xl font-semibold text-black">
-              New File Upload
-            </Text>
-            <Text className="text-sm leading-6 text-black">
-              {uploaderEmail ? (
-                <>
-                  <span className="font-semibold">{uploaderEmail}</span> has
-                  uploaded{" "}
-                </>
-              ) : (
-                <>A visitor has uploaded </>
-              )}
-              <span className="font-semibold">
-                {documentCount} {documentLabel}
-              </span>{" "}
-              to your dataroom{" "}
-              <span className="font-semibold">{dataroomName}</span> via the link{" "}
-              <span className="font-semibold">{linkName}</span>.
-            </Text>
-            {documentNames.length <= 10 && (
-              <Section className="my-4">
-                {documentNames.map((name, index) => (
-                  <Text
-                    key={index}
-                    className="my-1 text-sm leading-6 text-black"
-                  >
-                    {"\u2022"} {name}
-                  </Text>
-                ))}
-              </Section>
-            )}
-            <Section className="my-8 text-center">
-              <Button
-                className="rounded bg-black text-center text-xs font-semibold text-white no-underline"
-                href={`https://app.papermark.com/datarooms/${dataroomId}`}
-                style={{ padding: "12px 20px" }}
-              >
-                View the dataroom
-              </Button>
-            </Section>
-
-            <Footer
-              footerText={
-                <>
-                  If you have any feedback or questions about this email, simply
-                  reply to it. I&apos;d love to hear from you!
-                  <br />
-                  <br />
-                  To stop email notifications for this link, edit the link and
-                  uncheck &quot;Receive email notification&quot;.
-                </>
-              }
-            />
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <BrandEmail
+      preview={`${uploaderEmail ?? "A visitor"} uploaded ${files} to ${dataroomName}`}
+      title="New files in your data room"
+      note={
+        <>
+          To stop these emails for this link, edit the link and turn off
+          &quot;Receive email notification&quot;.
+        </>
+      }
+    >
+      <P>
+        <strong>{uploaderEmail ?? "A visitor"}</strong> uploaded{" "}
+        <strong>{files}</strong> to <strong>{dataroomName}</strong>, using the
+        link <strong>{linkName}</strong>.
+      </P>
+      {count <= 10 ? documentNames.map((name, i) => <P key={i}>• {name}</P>) : null}
+      <BrandButton href={appUrl(`/datarooms/${dataroomId}`)}>
+        Open the data room
+      </BrandButton>
+    </BrandEmail>
   );
 }

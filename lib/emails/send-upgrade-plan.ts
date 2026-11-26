@@ -23,6 +23,8 @@ export const sendUpgradePlanEmail = async (
 
   try {
     await sendEmail({
+      // Upstream product email: not sent by the community edition.
+      marketing: true,
       to: email as string,
       subject: `Thank you for upgrading to Papermark ${planTypeText}!`,
       react: emailTemplate,

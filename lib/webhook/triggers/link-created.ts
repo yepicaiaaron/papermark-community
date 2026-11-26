@@ -74,9 +74,9 @@ export async function sendLinkCreatedWebhook({
       id: link.id,
       url: link.domainId
         ? `https://${link.domainSlug}/${link.slug}`
-        : `https://www.papermark.com/view/${link.id}`,
+        : `${process.env.NEXT_PUBLIC_MARKETING_URL}/view/${link.id}`,
       domain:
-        link.domainId && link.domainSlug ? link.domainSlug : "papermark.com",
+        link.domainId && link.domainSlug ? link.domainSlug : new URL(process.env.NEXT_PUBLIC_MARKETING_URL || "http://localhost").host,
       key: link.domainId && link.slug ? link.slug : `view/${link.id}`,
       name: link.name,
       expiresAt: link.expiresAt?.toISOString() || null,

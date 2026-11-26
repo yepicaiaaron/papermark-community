@@ -1,3 +1,4 @@
+import { BRAND } from "@/community/brand/config";
 import Link from "next/link";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -285,7 +286,10 @@ export default function DataroomNav({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [conversationsEnabled, showConversations]);
 
-  const hasBanner = brand?.banner !== "no-banner";
+  // Community edition: with a custom brand and no banner uploaded, show no
+  // banner rather than Papermark's default one.
+  const hasBanner =
+    brand?.banner !== "no-banner" && (!!brand?.banner || !BRAND.custom);
   const viewerHeaderStyle: DataroomViewerHeaderStyle =
     asDataroomViewerHeaderStyle(
       (brand as { viewerHeaderStyle?: string } | undefined)

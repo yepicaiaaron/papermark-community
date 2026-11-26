@@ -445,7 +445,7 @@ export function constructMetadata({
     ? BRAND.tagline
     : "Papermark is an open-source document sharing alternative to DocSend with built-in engagement analytics and 100% white-labeling.",
   image = BRAND.custom
-    ? BRAND.logo
+    ? BRAND.emailLogo || BRAND.logo
     : "https://www.papermark.com/_static/meta-image.png",
   favicon = BRAND.favicon,
   noIndex = false,
@@ -473,7 +473,7 @@ export function constructMetadata({
       title,
       description,
       images: [image],
-      creator: "@papermarkio",
+      ...(BRAND.custom ? {} : { creator: "@papermarkio" }),
     },
     favicon,
     ...(noIndex && {

@@ -104,7 +104,7 @@ export function HorizontalPageContent({
           }
         }}
         useMap={`#page-map-${index + 1}`}
-        src={page.file || "https://www.papermark.com/_static/blank.gif"}
+        src={page.file || "/_static/blank.gif"}
         alt={`Page ${index + 1}`}
       />
 

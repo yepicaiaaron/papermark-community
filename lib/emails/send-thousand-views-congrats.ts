@@ -9,6 +9,8 @@ export const sendThousandViewsCongratsEmail = async (params: CreateUserEmailProp
   const emailTemplate = ThousandViewsCongratsEmail({ name });
   try {
     await sendEmail({
+      // Upstream product email: not sent by the community edition.
+      marketing: true,
       to: email as string,
       subject: `1000 views on Papermark. Awesome, ${name}`,
       react: emailTemplate,

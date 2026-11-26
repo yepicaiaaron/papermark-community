@@ -13,6 +13,8 @@ export const sendSlackIntegrationEmail = async (params: CreateUserEmailProps) =>
   const emailTemplate = SlackIntegrationEmail({ name });
   try {
     await sendEmail({
+      // Upstream product email: not sent by the community edition.
+      marketing: true,
       to: email as string,
       subject: "See who viewed your documents in Slack ",
       react: emailTemplate,

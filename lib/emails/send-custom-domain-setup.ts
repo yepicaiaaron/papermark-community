@@ -16,8 +16,10 @@ export const sendCustomDomainSetupEmail = async (
   
   try {
     await sendEmail({
+      // Upstream product email: not sent by the community edition.
+      marketing: true,
       to: email,
-      subject: "Your Papermark custom domain set up",
+      subject: "Set up your own domain",
       react: emailTemplate,
       test: process.env.NODE_ENV === "development",
     });

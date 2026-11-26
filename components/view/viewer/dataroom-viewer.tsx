@@ -1,3 +1,4 @@
+import { BRAND } from "@/community/brand/config";
 import { useRouter } from "next/router";
 
 import { useEffect, useMemo, useState } from "react";
@@ -1247,7 +1248,7 @@ export default function DataroomViewer({
                         </div>
                       </div>
                     </div>
-                    {showPoweredByBanner ? (
+                    {showPoweredByBanner && !BRAND.custom ? (
                       <footer className="shrink-0 px-3 md:px-6 lg:px-8 xl:px-14">
                         <div
                           className="border-t py-3"
